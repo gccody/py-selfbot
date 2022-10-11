@@ -1,7 +1,9 @@
 from datetime import datetime
 import glob
 from http.client import HTTPException
+from threading import Timer
 import json
+import re
 from time import sleep
 import discord
 from discord.message import Message
@@ -9,11 +11,13 @@ from discord.embeds import Embed
 from discord.ext.commands import Bot as BotBase
 from discord.ext.commands.context import Context
 from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, CommandOnCooldown, MissingPermissions, BotMissingPermissions
+from lib.scraped_user import ScrapedUser
 
 from lib.config import Config
 from lib.webhook import WebhookHandler
 
 COGS = [path.split("\\")[-1][:-3] for path in glob.glob('./lib/cogs/*.py')]
+COMMAND_ERROR_REGEX = r"Command raised an exception: (.*?(?=: )): (.*)"
 IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument, RuntimeError)
 
 class Ready(object):
@@ -34,6 +38,7 @@ class Bot(BotBase):
     self.cogs_ready: Ready = Ready()
     self.config: Config = Config()
     self.webhook: WebhookHandler = WebhookHandler(self.config.userLogUrl, self.config.clientLogUrl, self.config.guildLogUrl, self.config.errorLogUrl)
+    self.scraped_users: list[ScrapedUser] = []
     super().__init__(
       command_prefix='.',
       self_bot=True,
@@ -83,12 +88,15 @@ class Bot(BotBase):
         print([getattr(self.cogs_ready, cog) for cog in COGS])
         sleep(0.5)
 
-      self.ready = True
       print("Bot Ready")
+      Timer(3, self.ready_up, ()).start()
       # print(json.dumps(embed.to_dict(), indent=2, sort_keys=False))
       self.webhook.sendClientWebhook(embed)
     else:
       print("Bot Reconnected")
+
+  def ready_up(self) -> None:
+    self.ready = True
 
   async def on_disconnect(self):
     print("Bot Disconnected")
@@ -96,12 +104,13 @@ class Bot(BotBase):
   async def on_error(self, err, *args, **kwargs) -> None:
     if err == "on_command_error":
       await args[0].send("Something went wrong.")
-    embed: Embed = Embed()
-    embed.title = "**Unhandled Error**"
-    embed.add_field(name="Error", value=f"```{err}```")
+      vals = str(args[1]).split(": ")
+      embed: Embed = Embed(title=vals[1], description=f"```{vals[2]}```", colour=0xff0000)
+    else:
+      vals = str(args[1]).split(": ")
+      embed: Embed = Embed(title=vals[1], description=f"```{vals[2]}```", colour=0xff0000)
     self.webhook.sendErrorWebhook(embed)
-    print(err)
-    raise
+    # raise
 
   async def on_command_error(self, ctx: Context, exc) -> None:
     if any([isinstance(exc, error)for error in IGNORE_EXCEPTIONS]):

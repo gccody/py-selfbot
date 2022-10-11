@@ -22,7 +22,7 @@ class Setup(Cog):
     webhook: Webhook = await channel.create_webhook(name=name)
     configFunc(webhook.url)
     webhookFunc(webhook.url)
-    print(f"Created channel {name}")
+    print(f"Created channel {channel.name} and webhook {webhook.name}")
 
   @command(name="setup", description="Only run once on first startup")
   async def setup(self, ctx: Context):
