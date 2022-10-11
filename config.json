@@ -1,5 +1,5 @@
 {
-  "threads": 5,
+  "threads": 10,
   "token": "NTA3MjE0NTE1NjQxNzc4MTg3.GXnxsV.l__rEqoeUOzYkHyGip0T0sxYR8qj2VWj3N8aiY",
   "userLogsWebhook": "https://discord.com/api/webhooks/1028923591787552768/iDJn5MQuLzF5kUs4-rGbh256Necz-Xf5krUEBKDCflv2kC8N2oua_YZyq2XRURfFWEOC",
   "clientLogsWebhook": "https://discord.com/api/webhooks/1028923594962649149/HXdwUCIRp4Fc-7nO2u0uI2G_5SMapc_ndeJ7LXleIBjfbvs83teCu7D6eKHwH8mSa_aw",

@@ -1,34 +1,38 @@
-import datetime
+from concurrent.futures import ThreadPoolExecutor
+import math
+import asyncio
+import threading
+from lib.bot import Bot
+from itertools import islice
 from discord.ext.commands import Cog
+from discord.member import Member, User
+from lib.scraped_user import ScrapedUser
 from discord.ext.commands import command
 from discord.ext.commands.context import Context
-from discord.member import Member, Asset, User
-import json
-
-from lib.bot import Bot
 
 class Scrape(Cog):
   def __init__(self, bot):
     self.bot: Bot = bot
+    self.ex = ThreadPoolExecutor(self.bot.config.threads)
 
   @command(name="scrape")
   async def scrape(self, ctx: Context):
     members: list[Member] = ctx.guild.members
-    length: int = 0
+    print("Scraping...")
     for member in members:
+      # if member.bot: continue
+      if member.id == self.bot.user.id: continue
       user: User = member._user
-      if user.bot: pass
-      jsonstr = json.dumps({
-        "id": user.id,
-        "display_name": user.display_name,
-        "discriminator": user.discriminator,
-        "icon_url": f"https://cdn.discordapp.com{user.avatar_url_as(format=('gif' if user.is_avatar_animated() else 'png'))._url}",
-        "Created At Str": user.created_at.strftime(f"%m/%d/%Y, %I:%M:%S %p"),
-        "Created At Timestamp": user.created_at.timestamp()
-      }, sort_keys=False, indent=2)
-      print(jsonstr)
-      length+=1
-    print(length)
+      scraped_user: ScrapedUser = ScrapedUser(user)
+      await scraped_user.init()
+      self.bot.scraped_users.append(scraped_user)
+      print(scraped_user.toJsonStr())
+    print("Scraped")
+
+  @command(name="scrapped_length", aliases=['length', 'slength', 'len'])
+  async def scrapped_length(self, ctx: Context):
+    await ctx.send(len(self.bot.scraped_users))
+
     
 def setup(bot):
   bot.add_cog(Scrape(bot))

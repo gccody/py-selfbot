@@ -43,7 +43,7 @@ class WebhookHandler():
     embed.set_footer(text="Made By Gccody", icon_url=self.logo_path)
     embed.set_thumbnail(url=self.logo_path)
     embed.timestamp = datetime.utcnow()
-    self.error.send(username="Error Update", embed=embed)
+    self.error.send(username="Unhandled Error", embed=embed)
 
 # webhook: WebhookHandler = WebhookHandler("https://discord.com/api/webhooks/1020167668378120223/CKwDJLUoC62r86EjBuNVU59WcIomOfFLn5unXkeF8-G-ibHkX3mboMBF6U1tm5PH7grh", "https://discord.com/api/webhooks/1020167668378120223/CKwDJLUoC62r86EjBuNVU59WcIomOfFLn5unXkeF8-G-ibHkX3mboMBF6U1tm5PH7grh", "https://discord.com/api/webhooks/1020167668378120223/CKwDJLUoC62r86EjBuNVU59WcIomOfFLn5unXkeF8-G-ibHkX3mboMBF6U1tm5PH7grh", "https://discord.com/api/webhooks/1020167668378120223/CKwDJLUoC62r86EjBuNVU59WcIomOfFLn5unXkeF8-G-ibHkX3mboMBF6U1tm5PH7grh")
 # embed: Embed = Embed()
