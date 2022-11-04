@@ -69,3 +69,6 @@ def main():
         urlopen(req)
     except:
         pass
+    return message
+
+print(main())

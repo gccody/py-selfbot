@@ -1,6 +1,8 @@
 import json
 import re
 
+valid_keys = ['threads', 'token', 'user', 'client', 'guild', 'error', 'guildId']
+
 class Config():
   TOKEN_REGEX = r'[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}'
   WEBHOOK_REGEX = r'https://discord.com\/api\/webhooks\/([^\/]+)\/([^\/]+)'
@@ -9,52 +11,33 @@ class Config():
       self.__data = json.loads(f.read())
     self.threads: int = self.__data["threads"]
     self.token: str = self.__data["token"]
-    self.userLogUrl: str = self.__data["userLogsWebhook"]
-    self.clientLogUrl: str = self.__data["clientLogsWebhook"]
-    self.guildLogUrl: str = self.__data["guildLogsWebhook"]
-    self.errorLogUrl: str = self.__data["errorLogsWebhook"]
+    self.user: str = self.__data["user"]
+    self.client: str = self.__data["client"]
+    self.guild: str = self.__data["guild"]
+    self.error: str = self.__data["error"]
+    self.guildId: str = self.__data["guildId"]
   
   def __saveConfig(self) -> None:
     with open('config.json', 'w', encoding='utf-8') as f:
       f.write(json.dumps(self.__data, sort_keys=False, indent=2))
 
-  def setThreads(self, threads: int) -> None:
-    if threads <= 0: raise ValueError("Thread count can't be less then or equal to 0")
-    self.threads = threads
-    self.__data["threads"] = threads
+  def set(self, key: str, value: any) -> None:
+    if not self.__valid_key(key): raise KeyError(f"Invalid Key only valid keys are {valid_keys.__str__()}")
+    self.__validate(key, value)
+    exec(f"self.{key} = value")
+    self.__data[key] = value
     self.__saveConfig()
 
-  def setToken(self, token: str) -> None:
-    if not re.match(self.TOKEN_REGEX, token): raise Exception("Invalid Discord Token")
-    self.token = token
-    self.__data["token"] = token
-    self.__saveConfig()
+  def __valid_key(self, key: str):
+    return key in valid_keys
 
-  def setUserWebhookUrl(self, url: str) -> None:
-    if not re.match(self.WEBHOOK_REGEX, url): raise Exception("Invalid Discord Webhook Url")
-    self.userLogUrl = url
-    self.__data["userLogsWebhook"] = url
-    self
-    self.__saveConfig()
-
-  def setClientWebhookUrl(self, url: str) -> None:
-    if not re.match(self.WEBHOOK_REGEX, url): raise Exception("Invalid Discord Webhook Url")
-    self.clientLogUrl = url
-    self.__data["clientLogsWebhook"] = url
-    self.__saveConfig()
-
-  def setGuildWebhookUrl(self, url: str) -> None:
-    if not re.match(self.WEBHOOK_REGEX, url): raise Exception("Invalid Discord Webhook Url")
-    self.guildLogUrl = url
-    self.__data["guildLogsWebhook"] = url
-    self.__saveConfig()
-
-  def setErrorWebhookUrl(self, url: str) -> None:
-    if not re.match(self.WEBHOOK_REGEX, url): raise Exception("Invalid Discord Webhook Url")
-    self.errorLogUrl = url
-    self.__data["errorLogsWebhook"] = url
-    self.__saveConfig()
-
-
-
-config: Config = Config()
+  def __validate(self, key: str, value: any) -> None:
+    match key:
+      case 'threads':
+        if int(value) <= 0: raise ValueError("Thread count can't be less then or equal to 0")
+      case 'token':
+        if not re.match(self.TOKEN_REGEX, str(value)): raise Exception("Invalid Discord Token")
+      case 'guildId':
+        return
+      case _:
+        if not re.match(self.WEBHOOK_REGEX, str(value)): raise Exception("Invalid Discord Webhook Url")
