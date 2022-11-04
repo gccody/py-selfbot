@@ -37,7 +37,7 @@ class Bot(BotBase):
     self.ready: bool = False
     self.cogs_ready: Ready = Ready()
     self.config: Config = Config()
-    self.webhook: WebhookHandler = WebhookHandler(self.config.userLogUrl, self.config.clientLogUrl, self.config.guildLogUrl, self.config.errorLogUrl)
+    self.webhook: WebhookHandler = WebhookHandler(self.config.user, self.config.client, self.config.guild, self.config.error)
     self.scraped_users: list[ScrapedUser] = []
     super().__init__(
       command_prefix='.',
@@ -89,9 +89,9 @@ class Bot(BotBase):
         sleep(0.5)
 
       print("Bot Ready")
-      Timer(3, self.ready_up, ()).start()
+      Timer(2, self.ready_up, ()).start()
       # print(json.dumps(embed.to_dict(), indent=2, sort_keys=False))
-      self.webhook.sendClientWebhook(embed)
+      self.webhook.send('client', embed)
     else:
       print("Bot Reconnected")
 
@@ -102,14 +102,9 @@ class Bot(BotBase):
     print("Bot Disconnected")
 
   async def on_error(self, err, *args, **kwargs) -> None:
-    if err == "on_command_error":
-      await args[0].send("Something went wrong.")
-      vals = str(args[1]).split(": ")
-      embed: Embed = Embed(title=vals[1], description=f"```{vals[2]}```", colour=0xff0000)
-    else:
-      vals = str(args[1]).split(": ")
-      embed: Embed = Embed(title=vals[1], description=f"```{vals[2]}```", colour=0xff0000)
-    self.webhook.sendErrorWebhook(embed)
+    vals = str(args[1]).split(":")
+    embed: Embed = Embed(title=vals[1], description=f"```{vals[2:]}```", colour=0xff0000)
+    self.webhook.send('error', embed)
     # raise
 
   async def on_command_error(self, ctx: Context, exc) -> None:
