@@ -40,7 +40,7 @@ class ScrapedUser():
         self.discord_team_user = self.__profile.team_user if self.__profile.team_user else None
         self.note = self.__profile.note
         self.mutual_guilds: list[MutualGuilds] = [MutualGuilds(guild.id, guild.name) for guild in self.__profile.mutual_guilds]
-        self.mutual_friends: self.__profile.mutual_friends
+        self.mutual_friends: list[User] = self.__profile.mutual_friends
         self.flags = self.__profile.flags
 
     def to_json_str(self) -> dict[str, any]:

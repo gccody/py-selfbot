@@ -1,0 +1,12 @@
+{
+  "threads": 10,
+  "token": "",
+  "scrape_delay": 10,
+  "default_language": "en",
+  "": "Do Not Touch Below! If No Webhooks Then Run '.setup' Command",
+  "guildId": "",
+  "user": "",
+  "client": "",
+  "guild": "",
+  "error": "-W"
+}
