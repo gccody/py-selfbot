@@ -56,7 +56,7 @@ class WebhookCreate(Cog):
 
         for _ in range(amount):
             try:
-                await wh.send(message)
+                await wh.send(" ".join(message))
             except Forbidden:
                 return await ctx.reply('Authorization token incorrect')
             except NotFound:

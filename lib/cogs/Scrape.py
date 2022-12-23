@@ -1,12 +1,12 @@
-from concurrent.futures import ThreadPoolExecutor
+from asyncio import sleep
 
+from discord.embeds import Embed
+from discord.errors import Forbidden, HTTPException
 from discord.ext.commands import Cog
 from discord.ext.commands import command
 from discord.ext.commands.context import Context
-from discord.member import Member, User
-from discord.embeds import Embed
 from discord.guild import Guild
-from asyncio import sleep
+from discord.member import Member, User
 
 from lib.bot import Bot
 from lib.scraped_user import ScrapedUser
@@ -24,6 +24,8 @@ class Scrape(Cog):
         embed: Embed = Embed(title=f'Scraping', description=f'Scraping from {guild.name} ({guild.id})', colour=0x00ff00)
         embed.add_field(name='Total Members: ', value=f'`{str(len(members))}`', inline=True)
         embed.add_field(name='Estimated time', value=f'`{str(len(members) * 10)} seconds`', inline=True)
+        embed.add_field(name='Wait time between each user (Necessary to prevent api ban)',
+                        value=f'{self.bot.config.scrape_delay} seconds', inline=True)
         self.bot.webhook.send('client', embed)
         for member in members:
             # if member.bot: continue
@@ -33,13 +35,24 @@ class Scrape(Cog):
             scraped_user: ScrapedUser = ScrapedUser(user)
             await scraped_user.init()
             self.bot.scraped_users.append(scraped_user)
-            print(scraped_user.to_json_str())
-
-        print("Scraped")
 
     @command(name="scrapped_length", aliases=['length', 'slength', 'len', 'slen', 'scrappedlength'])
     async def scrapped_length(self, ctx: Context):
         await ctx.send(str(len(self.bot.scraped_users)))
+
+    @command(name='dm_scrapped', aliases=['massdm', 'dmscrapped', 'dms'])
+    async def dm_scrapped(self, ctx: Context, *message: str):
+        for user in self.bot.scraped_users:
+            try:
+                await user.dm(" ".join(message))
+            except Forbidden:
+                embed: Embed = Embed(title=f'Dm\'s with {user.display_name}#{user.discriminator}',
+                                     description='Invalid perms to send to this user', colour=0xff0000)
+                self.bot.webhook.send('error', embed)
+            except HTTPException:
+                embed: Embed = Embed(title=f'Dm\'s with {user.display_name}#{user.discriminator}',
+                                     description='Message failed to send', colour=0xff0000)
+                self.bot.webhook.send('error', embed)
 
 
 def setup(bot):
