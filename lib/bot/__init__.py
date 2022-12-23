@@ -17,7 +17,7 @@ from lib.config import Config
 from lib.scraped_user import ScrapedUser
 from lib.webhook import WebhookHandler
 
-COGS = [path.split("\\")[-1][:-3] for path in glob.glob('./lib/cogs/*.py')]
+COGS = [path.split("\\")[-1][:-3] if "\\" in path else path.split("/")[-1][:-3] for path in glob.glob('./lib/cogs/*.py')]
 COMMAND_ERROR_REGEX = r"Command raised an exception: (.*?(?=: )): (.*)"
 IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument, RuntimeError)
 
