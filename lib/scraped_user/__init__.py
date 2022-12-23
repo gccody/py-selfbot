@@ -1,4 +1,6 @@
 from discord.user import User, Profile
+from discord.relationship import Relationship
+from discord.channel import DMChannel
 
 
 class ScrapedUser():
@@ -25,6 +27,9 @@ class ScrapedUser():
         self.avatar_url = f"https://cdn.discordapp.com{self.__user.avatar_url_as(format=('gif' if self.__user.is_avatar_animated() else 'png'))._url}"
         self.created_at_str = self.__user.created_at.strftime(f"%m/%d/%Y, %I:%M:%S %p")
         self.created_at_timestamp = self.__user.created_at.timestamp()
+        self.is_friend = self.__user.is_friend()
+        self.is_blocked = self.__user.is_blocked()
+        self.relationship: Relationship = self.__user.relationship
 
     async def init(self):
         self.__profile = await self.__user.profile()
@@ -42,6 +47,7 @@ class ScrapedUser():
         self.mutual_guilds: list[MutualGuilds] = [MutualGuilds(guild.id, guild.name) for guild in self.__profile.mutual_guilds]
         self.mutual_friends: list[User] = self.__profile.mutual_friends
         self.flags = self.__profile.flags
+
 
     def to_json_str(self) -> dict[str, any]:
         return {
@@ -66,6 +72,13 @@ class ScrapedUser():
             "Mutual Friends": self.mutual_friends,
             "Flags": self.flags
         }
+
+    async def dm(self, message: str):
+        channel: DMChannel = self.__user.dm_channel
+        if channel is None: channel = await self.__user.create_dm()
+
+        await channel.trigger_typing()
+        await channel.send(content=message)
 
 
 class MutualGuilds:

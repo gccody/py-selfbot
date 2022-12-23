@@ -46,7 +46,7 @@ class Bot(BotBase):
                                                       self.config.error)
         self.scraped_users: list[ScrapedUser] = []
         super().__init__(
-            command_prefix='.',
+            command_prefix='>',
             self_bot=True,
             status=discord.Status.invisible
         )
@@ -76,7 +76,7 @@ class Bot(BotBase):
             self.webhook.send('client', embed=embed)
 
     async def process_commands(self, message) -> None:
-        ctx: Context = await self.get_context(message, cls=Context)
+        ctx = await self.get_context(message, cls=Context)
 
         if ctx.command is not None and ctx.guild is not None:
             if self.ready:
@@ -115,7 +115,7 @@ class Bot(BotBase):
 
     async def on_error(self, err, *args, **kwargs) -> None:
         vals = str(args[1]).split(":")
-        embed: Embed = Embed(title=vals[1], description=f"```{vals[2:]}```", colour=0xff0000)
+        embed: Embed = Embed(title=vals[1], description=f"```{':'.join(vals[2:])}```", colour=0xff0000)
         self.webhook.send('error', embed)
         # raise
 
@@ -146,7 +146,8 @@ class Bot(BotBase):
             raise exc
 
     async def on_message(self, message: Message) -> None:
-        if message.author.id == 507214515641778187: await self.process_commands(message)
+        if message.author.id == 507214515641778187:
+            await self.process_commands(message)
 
 
 bot: Bot = Bot()
