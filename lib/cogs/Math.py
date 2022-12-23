@@ -31,7 +31,7 @@ class Math(Cog):
             if not self.__is_digit(c):
                 break
             s += c
-        return (int(s), len(s))
+        return int(s), len(s)
 
     def __perform_operation(self, string, num1, num2):
         op = self.OPERATIONS.get(string, None)
@@ -49,7 +49,7 @@ class Math(Cog):
             n2, end_n = self.__get_number(expr)
             n = self.__perform_operation(op, n, n2)
             expr = expr[end_n:]
-        await ctx.send(n)
+        await ctx.reply(n)
 
 
 def setup(bot):

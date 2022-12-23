@@ -1,10 +1,9 @@
 import json
 import re
 
-valid_keys = ['threads', 'token', 'user', 'client', 'guild', 'error', 'guildId']
-
 
 class Config():
+    valid_keys = ['threads', 'token', 'user', 'client', 'guild', 'error', 'guildId']
     TOKEN_REGEX = r'[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}'
     WEBHOOK_REGEX = r'https://discord.com\/api\/webhooks\/([^\/]+)\/([^\/]+)'
 
@@ -13,6 +12,8 @@ class Config():
             self.__data = json.loads(f.read())
         self.threads: int = self.__data["threads"]
         self.token: str = self.__data["token"]
+        self.scrape_delay: int = self.__data["scrape_delay"]
+        self.default_language: str = self.__data["default_language"]
         self.user: str = self.__data["user"]
         self.client: str = self.__data["client"]
         self.guild: str = self.__data["guild"]
@@ -24,14 +25,14 @@ class Config():
             f.write(json.dumps(self.__data, sort_keys=False, indent=2))
 
     def set(self, key: str, value: any) -> None:
-        if not self.__valid_key(key): raise KeyError(f"Invalid Key only valid keys are {valid_keys.__str__()}")
+        if not self.__valid_key(key): raise KeyError(f"Invalid Key only valid keys are {self.valid_keys.__str__()}")
         self.__validate(key, value)
         exec(f"self.{key} = value")
         self.__data[key] = value
         self.__save_config()
 
     def __valid_key(self, key: str):
-        return key in valid_keys
+        return key in self.valid_keys
 
     def __validate(self, key: str, value: any) -> None:
         match key:

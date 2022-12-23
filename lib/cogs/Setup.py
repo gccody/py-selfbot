@@ -17,11 +17,11 @@ class Setup(Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
 
-    async def deleteChannel(self, channel: GuildChannel) -> None:
+    async def delete_channel(self, channel: GuildChannel) -> None:
         await channel.delete()
         print(f"Deleted channel {channel.name}")
 
-    async def createChannel(self, guild: Guild, name: str, key: str) -> None:
+    async def create_channel(self, guild: Guild, name: str, key: str) -> None:
         channel: TextChannel = await guild.create_text_channel(name=name)
         channel.topic = key
         webhook: Webhook = await channel.create_webhook(name=name)
@@ -31,15 +31,16 @@ class Setup(Cog):
 
     @command(name="setup", description="Only run once on first startup")
     async def setup(self, ctx: Context):
+        await ctx.message.delete()
         guild: Guild = await self.bot.create_guild(name="Gccody Selfbot Logging",
                                                    icon=open('./lib/utils/logo.jpg', 'rb').read())
         self.bot.config.set('guildId', str(guild.id))
         for channel in guild.channels:
-            asyncio.ensure_future(self.deleteChannel(channel))
+            asyncio.ensure_future(self.delete_channel(channel))
         channels: list[str] = ['user-updates', 'client-updates', 'guild-updates', 'unhandled-errors']
         keys: list[str] = ['user', 'client', 'guild', 'error']
         for name, key in zip(channels, keys):
-            asyncio.ensure_future(self.createChannel(guild, name, key))
+            asyncio.ensure_future(self.create_channel(guild, name, key))
 
         embed: Embed = Embed()
         embed.title = "Guild Created"

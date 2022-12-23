@@ -6,8 +6,10 @@ from time import sleep
 
 import discord
 from discord.embeds import Embed
+from discord.errors import LoginFailure
 from discord.ext.commands import Bot as BotBase
-from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, CommandOnCooldown, MissingPermissions, BotMissingPermissions
+from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, CommandOnCooldown, \
+    MissingPermissions, BotMissingPermissions
 from discord.ext.commands.context import Context
 from discord.message import Message
 
@@ -65,17 +67,22 @@ class Bot(BotBase):
 
         self.TOKEN = self.config.token
         print("Starting bot...")
-        super().run(self.TOKEN, reconnect=True)
+        try:
+            super().run(self.TOKEN, reconnect=True)
+        except LoginFailure:
+            embed: Embed = Embed(title="Error logging in",
+                                 description="Replace old discord token with new token then start bot again!",
+                                 colour=0xff00000)
+            self.webhook.send('client', embed=embed)
 
     async def process_commands(self, message) -> None:
         ctx: Context = await self.get_context(message, cls=Context)
 
         if ctx.command is not None and ctx.guild is not None:
-            await ctx.message.delete()
             if self.ready:
                 await self.invoke(ctx)
             else:
-                await ctx.send("I'm not ready to recieve commands. Please wait a few seconds.")
+                await ctx.send("I'm not ready to receive commands. Please wait a few seconds.")
 
     async def on_connect(self) -> None:
         if not self.ready:
@@ -93,7 +100,7 @@ class Bot(BotBase):
                 print([getattr(self.cogs_ready, cog) for cog in COGS])
                 sleep(0.5)
 
-            print("Bot Ready")
+            print(f"Bot Ready, Logged in as {bot.user.display_name}#{bot.user.discriminator}")
             Timer(2, self.ready_up, ()).start()
             # print(json.dumps(embed.to_dict(), indent=2, sort_keys=False))
             # self.webhook.send('client', embed)
@@ -104,7 +111,7 @@ class Bot(BotBase):
         self.ready = True
 
     async def on_disconnect(self):
-        print("Bot Disconnected")
+        print(f"Bot Disconnected, Retrying to sign into user {self.user.display_name}#{self.user.discriminator}")
 
     async def on_error(self, err, *args, **kwargs) -> None:
         vals = str(args[1]).split(":")
