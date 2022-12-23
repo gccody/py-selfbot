@@ -1,3 +1,4 @@
 discord.py-self==1.9.2
 googletrans~=4.0.0rc1
 GitPython==3.1.18
+requests==2.26.0
