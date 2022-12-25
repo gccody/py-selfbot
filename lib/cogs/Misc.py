@@ -14,21 +14,28 @@ class Misc(Cog):
 
     @command(name="restart", aliases=['rs'])
     async def restart(self, _):
+        self.r()
+
+    @command(name="pull")
+    async def pull(self, _):
+        self.u()
+
+    @command(name="update")
+    async def update(self, _):
+        self.u()
+        self.r()
+
+    @staticmethod
+    def u():
+        g = git.cmd.Git(working_dir=os.getcwd())
+        g.execute(['git', 'pull'])
+
+    def r(self):
         embed: Embed = Embed(title='Restarting...', colour=0x000000)
         self.bot.webhook.send('client', embed)
         os.execv(sys.executable, ['python'] + sys.argv)
 
-    @command(name="pull")
-    async def pull(self, _):
-        self.update()
 
-    @staticmethod
-    def update():
-        g = git.cmd.Git(working_dir=os.getcwd())
-        branch = g.execute(['git', 'rev-parse', '--abbrev-ref', 'HEAD'])
-        g.execute(['git', 'fetch', 'origin', branch])
-        update = g.execute(['git', 'remote', 'show', 'origin'])
-        return not ('up to date' in update or 'fast-forward' in update)
 
 
 
