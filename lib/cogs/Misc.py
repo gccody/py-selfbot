@@ -24,7 +24,7 @@ class Misc(Cog):
     async def update(self, ctx: Context):
         await ctx.message.delete()
         if self.u():
-            embed: Embed = Embed(title='Updated successfully. Now will restart.', colour=0x00ff00)
+            embed: Embed = Embed(title='Updated successfully', colour=0x00ff00)
             self.bot.webhook.send('client', embed)
             self.r()
         else:

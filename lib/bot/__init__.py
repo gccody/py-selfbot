@@ -102,8 +102,7 @@ class Bot(BotBase):
 
             print(f"Bot Ready, Logged in as {bot.user.display_name}#{bot.user.discriminator}!")
             Timer(2, self.ready_up, ()).start()
-            # print(json.dumps(embed.to_dict(), indent=2, sort_keys=False))
-            # self.webhook.send('client', embed)
+            self.webhook.send('client', embed)
         else:
             print("Bot Reconnected")
 

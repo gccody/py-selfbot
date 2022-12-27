@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from discord import Webhook, RequestsWebhookAdapter, Embed
+from discord import Webhook, RequestsWebhookAdapter, Embed, NotFound
 
 valid_keys: list[str] = ['user', 'client', 'guild', 'error']
 
@@ -22,7 +22,12 @@ class WebhookHandler:
         embed.set_footer(text="Made By Gccody", icon_url=self.logo_path)
         embed.set_thumbnail(url=self.logo_path)
         embed.timestamp = datetime.utcnow()
-        exec(f"self.{key}.send(username=\"{key.title()} Update\", embed=embed)")
+        try:
+            exec(f"self.{key}.send(username=\"{key.title()} Update\", embed=embed)")
+        except NotFound:
+            print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
+            print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
+            print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
 
     def print_url(self, key) -> str:
         exec(f"print(self.{key})")
