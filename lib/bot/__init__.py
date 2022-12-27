@@ -115,7 +115,8 @@ class Bot(BotBase):
 
     async def on_error(self, err, *args, **kwargs) -> None:
         vals = str(args[1]).split(":")
-        embed: Embed = Embed(title=vals[1], description=f"```{':'.join(vals[2:])}```", colour=0xff0000)
+        embed: Embed = Embed(title=vals[1], description=f"```{':'.join(vals[2:]).strip()}```", colour=0xff0000)
+        print(err, args)
         self.webhook.send('error', embed)
         # raise
 
@@ -137,7 +138,7 @@ class Bot(BotBase):
             if isinstance(exc.original, HTTPException):
                 await ctx.send("Unable to send message.")
             if isinstance(exc.original, discord.Forbidden):
-                await ctx.send("I do not hvae permission to do that.")
+                await ctx.send("I do not have permission to do that.")
 
             else:
                 raise exc.original
