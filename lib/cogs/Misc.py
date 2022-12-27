@@ -3,6 +3,7 @@ from discord.embeds import Embed
 from discord.ext.commands import Cog
 from discord.ext.commands import command
 from discord.ext.commands.context import Context
+import subprocess
 import git
 import os
 import sys
@@ -33,9 +34,17 @@ class Misc(Cog):
 
     @command(name="test")
     async def test(self, _):
-        repo = git.Repo(os.getcwd())
-        print("Diff?")
-        print(repo.head.commit.diff())
+        cmd = "git remote update; git status -uno"
+        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+
+        (output, err) = p.communicate()
+
+        print(output)
+        if "Your branch is behind" in str(output):
+            print("Behind")
+        else:
+            print("Not Behind")
+
 
     @staticmethod
     def u():
