@@ -34,13 +34,13 @@ class Misc(Cog):
 
     @command(name="test")
     async def test(self, _):
-        cmd = "git remote update; git status -uno"
-        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+        cmd1 = ["git", "remote", "update"]
+        cmd2 = ["git", "status", "-uno"]
+        subprocess.run(cmd1, stdout=subprocess.PIPE)
+        res = subprocess.run(cmd2, stdout=subprocess.PIPE)
 
-        (output, err) = p.communicate()
-
-        print(output)
-        if "Your branch is behind" in str(output):
+        print(res.stdout.decode('utf-8'))
+        if "Your branch is behind" in res.stdout.decode('utf-8'):
             print("Behind")
         else:
             print("Not Behind at all")
