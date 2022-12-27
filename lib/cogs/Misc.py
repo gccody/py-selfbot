@@ -43,7 +43,7 @@ class Misc(Cog):
         if "Your branch is behind" in res.stdout.decode('utf-8'):
             print("Behind")
         else:
-            print("Not Behind at all")
+            print("Not Behind")
 
 
     @staticmethod
