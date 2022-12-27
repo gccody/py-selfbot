@@ -28,6 +28,7 @@ class WebhookHandler:
             print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
             print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
             print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
+            print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
 
     def print_url(self, key) -> str:
         exec(f"print(self.{key})")
