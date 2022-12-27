@@ -79,7 +79,7 @@ Nitro: `{user.nitro}`
     async def add_role(self, ctx: Context, _):
         if not bool(ctx.author.guild_permissions.manage_roles):
             return await ctx.send(">>> Invalid Permissions (Manage Roles)")
-        if ctx.message.mentions is None:
+        if len(ctx.message.mentions) == 0:
             return await ctx.send(f">>> Mention users to add the roles to")
         matches = re.finditer(r"<@&(\d+?)>", ctx.message.content, re.MULTILINE)
         guild: Guild = ctx.guild
@@ -117,7 +117,7 @@ Nitro: `{user.nitro}`
     async def remove_role(self, ctx: Context, _):
         if not bool(ctx.author.guild_permissions.manage_roles):
             return await ctx.send(">>> Invalid Permissions (Manage Roles)")
-        if ctx.message.mentions is None:
+        if len(ctx.message.mentions) == 0:
             return await ctx.send(f">>> Mention users to add the roles to")
         matches = re.finditer(r"<@&(\d+?)>", ctx.message.content, re.MULTILINE)
         guild: Guild = ctx.guild
