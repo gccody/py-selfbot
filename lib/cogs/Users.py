@@ -118,7 +118,7 @@ Nitro: `{user.nitro}`
         if not bool(ctx.author.guild_permissions.manage_roles):
             return await ctx.send(">>> Invalid Permissions (Manage Roles)")
         if len(ctx.message.mentions) == 0:
-            return await ctx.send(f">>> Mention users to add the roles to")
+            return await ctx.send(f">>> Mention users to remove the roles from")
         matches = re.finditer(r"<@&(\d+?)>", ctx.message.content, re.MULTILINE)
         guild: Guild = ctx.guild
         valid = []
