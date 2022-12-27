@@ -22,13 +22,17 @@ class Misc(Cog):
 
     @command(name="update")
     async def update(self, _):
-        self.u()
-        self.r()
+        if self.u():
+            embed: Embed = Embed(title='Updated successfully!', colour=0x00ff00)
+            self.bot.webhook.send('client', embed)
+            self.r()
 
     @staticmethod
     def u():
-        g = git.cmd.Git(working_dir=os.getcwd())
-        g.execute(['git', 'pull'])
+        repo = git.Repo(os.getcwd())
+        curr = repo.head.commit
+        repo.remotes.origin.pull()
+        return curr != repo.head.commit
 
     def r(self):
         embed: Embed = Embed(title='Restarting...', colour=0x000000)
