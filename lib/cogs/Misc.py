@@ -31,6 +31,11 @@ class Misc(Cog):
             embed: Embed = Embed(title='Already up to date!', colour=0x00ff00)
             self.bot.webhook.send('client', embed)
 
+    @command(name="test")
+    async def test(self, _):
+        repo = git.Repo(os.getcwd())
+        print(repo.head.commit.diff())
+
     @staticmethod
     def u():
         repo = git.Repo(os.getcwd())
