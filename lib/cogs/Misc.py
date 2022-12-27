@@ -23,7 +23,7 @@ class Misc(Cog):
     @command(name="update")
     async def update(self, _):
         if self.u():
-            embed: Embed = Embed(title='Updated successfully!', colour=0x00ff00)
+            embed: Embed = Embed(title='Updated successfully. Now will restart.', colour=0x00ff00)
             self.bot.webhook.send('client', embed)
             self.r()
 
