@@ -34,6 +34,7 @@ class Misc(Cog):
     @command(name="test")
     async def test(self, _):
         repo = git.Repo(os.getcwd())
+        print("Diff?")
         print(repo.head.commit.diff())
 
     @staticmethod
