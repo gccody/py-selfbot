@@ -32,19 +32,6 @@ class Misc(Cog):
             embed: Embed = Embed(title='Already up to date!', colour=0x00ff00)
             self.bot.webhook.send('client', embed)
 
-    @command(name="test")
-    async def test(self, _):
-        cmd1 = ["git", "remote", "update"]
-        cmd2 = ["git", "status", "-uno"]
-        subprocess.run(cmd1, stdout=subprocess.PIPE)
-        res = subprocess.run(cmd2, stdout=subprocess.PIPE)
-
-        print(res.stdout.decode('utf-8'))
-        if "Your branch is behind" in res.stdout.decode('utf-8'):
-            print("Behind")
-        else:
-            print("Not Behind")
-
 
     @staticmethod
     def u():

@@ -1,8 +1,12 @@
+import asyncio
 import glob
 from datetime import datetime
 from http.client import HTTPException
 from threading import Timer
-from time import sleep
+from asyncio import sleep
+
+import tzlocal
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 import discord
 from discord.embeds import Embed
@@ -16,8 +20,10 @@ from discord.message import Message
 from lib.config import Config
 from lib.scraped_user import ScrapedUser
 from lib.webhook import WebhookHandler
+from lib.utils import behind
 
-COGS = [path.split("\\")[-1][:-3] if "\\" in path else path.split("/")[-1][:-3] for path in glob.glob('./lib/cogs/*.py')]
+COGS = [path.split("\\")[-1][:-3] if "\\" in path else path.split("/")[-1][:-3] for path in
+        glob.glob('./lib/cogs/*.py')]
 COMMAND_ERROR_REGEX = r"Command raised an exception: (.*?(?=: )): (.*)"
 IGNORE_EXCEPTIONS = (CommandNotFound, BadArgument, RuntimeError)
 
@@ -40,6 +46,7 @@ class Bot(BotBase):
         self.TOKEN = None
         self.VERSION = None
         self.ready: bool = False
+        self.scheduler: AsyncIOScheduler = AsyncIOScheduler(timezone=str(tzlocal.get_localzone()))
         self.cogs_ready: Ready = Ready()
         self.config: Config = Config()
         self.webhook: WebhookHandler = WebhookHandler(self.config.user, self.config.client, self.config.guild,
@@ -50,6 +57,14 @@ class Bot(BotBase):
             self_bot=True,
             status=discord.Status.invisible
         )
+
+        self.scheduler.add_job(self.check_update, trigger='cron', second='0,30')
+
+    def check_update(self) -> None:
+        if behind():
+            embed: Embed = Embed(title='New update available!',
+                                 description='Run the command `>update` to update the self bot', colour=0xff0000)
+            self.webhook.send('error', embed)
 
     def setup(self) -> None:
         for cog in COGS:
@@ -86,6 +101,7 @@ class Bot(BotBase):
 
     async def on_connect(self) -> None:
         if not self.ready:
+            self.scheduler.start()
             embed = discord.Embed(title="Now Online!", description="SelfBot is now online!", colour=0xff00ff,
                                   timestamp=datetime.utcnow())
             fields = [
@@ -98,7 +114,7 @@ class Bot(BotBase):
             embed.set_footer(text="Gccody#0001 |")
             while not self.cogs_ready.all_ready():
                 print([getattr(self.cogs_ready, cog) for cog in COGS])
-                sleep(0.5)
+                await sleep(0.5)
 
             print(f"Bot Ready, Logged in as {bot.user.display_name}#{bot.user.discriminator}!")
             Timer(2, self.ready_up, ()).start()
