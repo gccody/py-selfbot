@@ -21,11 +21,15 @@ class Misc(Cog):
         self.u()
 
     @command(name="update")
-    async def update(self, _):
+    async def update(self, ctx: Context):
+        await ctx.message.delete()
         if self.u():
             embed: Embed = Embed(title='Updated successfully. Now will restart.', colour=0x00ff00)
             self.bot.webhook.send('client', embed)
             self.r()
+        else:
+            embed: Embed = Embed(title='Already up to date!', colour=0x00ff00)
+            self.bot.webhook.send('client', embed)
 
     @staticmethod
     def u():
