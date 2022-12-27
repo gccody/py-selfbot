@@ -58,7 +58,7 @@ class Bot(BotBase):
             status=discord.Status.invisible
         )
 
-        self.scheduler.add_job(self.check_update, trigger='cron', second='0,30')
+        self.scheduler.add_job(self.check_update, trigger='cron', minute='0,30')
 
     def check_update(self) -> None:
         if behind():
@@ -116,7 +116,7 @@ class Bot(BotBase):
                 print([getattr(self.cogs_ready, cog) for cog in COGS])
                 await sleep(0.5)
 
-            print(f"Bot Ready, Logged in as {bot.user.display_name}#{bot.user.discriminator}")
+            print(f"Bot Ready, Logged in as {bot.user.display_name}#{bot.user.discriminator}!")
             Timer(2, self.ready_up, ()).start()
             self.webhook.send('client', embed)
         else:
