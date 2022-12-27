@@ -43,7 +43,7 @@ class Misc(Cog):
         if "Your branch is behind" in str(output):
             print("Behind")
         else:
-            print("Not Behind")
+            print("Not Behind at all")
 
 
     @staticmethod
