@@ -16,6 +16,7 @@ class Config():
         self.default_language: str = self.__data["default_language"] if 'default_language' in self.__data else ""
         self.email = self.__data["email"] if 'email' in self.__data else ""
         self.password: str = self.__data["password"] if 'password' in self.__data else ""
+        self.auto_scrape: bool = self.__data["auto_scrape"] if 'auto_scrape' in self.__data else False
         self.user: str = self.__data["user"] if 'user' in self.__data else ""
         self.client: str = self.__data["client"] if 'client' in self.__data else ""
         self.guild: str = self.__data["guild"] if 'guild' in self.__data else ""
@@ -29,7 +30,7 @@ class Config():
     def set(self, key: str, value: any) -> None:
         if not self.__valid_key(key): raise KeyError(f"Invalid Key only valid keys are {self.valid_keys.__str__()}")
         self.__validate(key, value)
-        exec(f"self.{key} = value")
+        exec(f"self.{key} = type(self.{key})(value)")
         self.__data[key] = value
         self.__save_config()
 
@@ -55,6 +56,7 @@ class Config():
             "default_language": self.default_language,
             "email": self.email,
             "password": self.password,
+            "auto_scrape": self.auto_scrape,
             "": "Do Not Touch Below! If No Webhooks Then Run '.setup' Command",
             "guildId": self.guildId,
             "user": self.user,

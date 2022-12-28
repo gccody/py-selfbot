@@ -1,6 +1,6 @@
 __pycache__/
 .venv
 venv/
-db/
 .idea/
 config.json
+database.db

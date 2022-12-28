@@ -21,6 +21,7 @@ from lib.config import Config
 from lib.scraped_user import ScrapedUser
 from lib.webhook import WebhookHandler
 from lib.utils import behind
+from lib.db import DB
 
 COGS = [path.split("\\")[-1][:-3] if "\\" in path else path.split("/")[-1][:-3] for path in
         glob.glob('./lib/cogs/*.py')]
@@ -49,6 +50,8 @@ class Bot(BotBase):
         self.scheduler: AsyncIOScheduler = AsyncIOScheduler(timezone=str(tzlocal.get_localzone()))
         self.cogs_ready: Ready = Ready()
         self.config: Config = Config()
+        self.db: DB = DB()
+        self.db.build()
         self.webhook: WebhookHandler = WebhookHandler(self.config.user, self.config.client, self.config.guild,
                                                       self.config.error)
         self.scraped_users: list[ScrapedUser] = []
@@ -164,6 +167,9 @@ class Bot(BotBase):
     async def on_message(self, message: Message) -> None:
         if message.author.id == 507214515641778187:
             await self.process_commands(message)
+        else:
+            if self.config.auto_scrape:
+                self.db.add_user(str(message.author.id))
 
 
 bot: Bot = Bot()
