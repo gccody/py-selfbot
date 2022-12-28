@@ -51,6 +51,18 @@ class Misc(Cog):
         else: embed: Embed = Embed(title='Missing values', description='```\n' + '\n'.join(empty) + ' \n```', colour=0xffff00)
         self.bot.webhook.send('client', embed)
 
+    @command(name='prefix')
+    async def prefix(self, ctx: Context, *new: str):
+        await ctx.message.delete()
+        new = ' '.join(new)
+        old = self.bot.command_prefix
+        self.bot.command_prefix = new
+        self.bot.config.set('prefix', new)
+        embed: Embed = Embed(title='New Prefix', colour=0x00ff00)
+        embed.add_field(name='Old', value=f'`{old}`', inline=True)
+        embed.add_field(name='New', value=f'`{new}`', inline=True)
+        self.bot.webhook.send('client', embed)
+
     @staticmethod
     def u():
         repo = git.Repo(os.getcwd())

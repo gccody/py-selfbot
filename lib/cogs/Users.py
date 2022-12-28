@@ -80,7 +80,8 @@ Nitro: `{user.nitro}`
 
         await ctx.reply(m)
 
-    @command(name='add_role', aliases=['+role', 'addrole', '+r'], description='Add a role or multiple roles to a user or multiple users')
+    @command(name='add_role', aliases=['+role', 'addrole', '+r'],
+             description='Add a role or multiple roles to a user or multiple users')
     async def add_role(self, ctx: Context, _):
         if not bool(ctx.author.guild_permissions.manage_roles):
             return await ctx.send(">>> Invalid Permissions (Manage Roles)")
@@ -118,7 +119,8 @@ Nitro: `{user.nitro}`
         success_role = "\n".join(success_role)
         await ctx.reply(f"The member(s) ({success_member}) have received the following roles: \n{success_role}")
 
-    @command(name="remove_role", aliases=['-role', '-r', 'removerole'], description='Remove a role or multiple roles from a user or multiple users')
+    @command(name="remove_role", aliases=['-role', '-r', 'removerole'],
+             description='Remove a role or multiple roles from a user or multiple users')
     async def remove_role(self, ctx: Context, _):
         if not bool(ctx.author.guild_permissions.manage_roles):
             return await ctx.send(">>> Invalid Permissions (Manage Roles)")
@@ -145,7 +147,6 @@ Nitro: `{user.nitro}`
 
         success_member = []
         success_role = [f"<@&{role.id}>" for role in valid]
-        print(valid)
         for member in ctx.message.mentions:
             try:
                 await member.remove_roles(*valid)
@@ -157,7 +158,8 @@ Nitro: `{user.nitro}`
         success_role = "\n".join(success_role)
         await ctx.reply(f"The member(s) ({success_member}) had the following roles removed: \n{success_role}")
 
-    @command(name="add_friend", aliases=['+friend', 'addfriend', '+f'], description='Send a friend request to a user or multiple users')
+    @command(name="add_friend", aliases=['+friend', 'addfriend', '+f'],
+             description='Send a friend request to a user or multiple users')
     async def add_friend(self, ctx: Context, _):
         if len(ctx.message.mentions) == 0:
             return await ctx.send(f">>> Mention users to send friend requests")
@@ -181,6 +183,36 @@ Nitro: `{user.nitro}`
                 success_str = '\n'.join(success)
                 await ctx.reply(f'Sent request(s) to: >>>\n{success_str}')
 
+    @command(name='+whitelist')
+    async def add_whitelist(self, ctx: Context):
+        await ctx.message.delete()
+        ids = self.bot.db.records('SELECT * FROM users')
+        for match in re.finditer(r"<@(\d+?)>", ctx.message.content, re.MULTILINE):
+            id: str = match.group(1)
+            if id not in ids:
+                self.bot.db.add_user(id, True)
+            else:
+                self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', True, id)
+
+    @command(name='whitelistfriends')
+    async def whitelist_friends(self, ctx: Context):
+        user: ClientUser = self.bot.user
+        ids = self.bot.db.records('SELECT * FROM users')
+        for friend in user.friends:
+            if friend.id not in ids:
+                self.bot.db.add_user(friend.id, True)
+            else:
+                self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', True, friend.id)
+
+    @command(name='-whitelist')
+    async def remove_whitelist(self, ctx: Context):
+        await ctx.message.delete()
+        ids = self.bot.db.records('SELECTE * FROM users')
+        for member in re.finditer(r"<@(\d+?)>", ctx.message.content, re.MULTILINE):
+            if member.id not in ids:
+                self.bot.db.add_user(member.id)
+            else:
+                self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', False, member.id)
 
 
 def setup(bot):
