@@ -34,9 +34,13 @@ class Misc(Cog):
 
     @command(name='update_config', aliases=['updateconfig', 'uc', 'set_config', 'setconfig', 'sc'])
     async def update_config(self, ctx: Context, key: str, *value: str):
+        await ctx.message.delete()
         value = ' '.join(value)
         if key not in self.bot.config.valid_keys: return await ctx.send('Not a valid key')
         self.bot.config.set(key, value)
+        embed: Embed = Embed(title='Config Update', colour=0x00ff00)
+        embed.add_field(name=key, value=value, inline=True)
+        self.bot.webhook.send('client', embed)
 
     @command(name='check_config', aliases=['checkconfig', 'cc'])
     async def check_config(self, ctx: Context):
