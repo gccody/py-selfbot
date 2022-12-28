@@ -15,7 +15,7 @@ class WebhookCreate(Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
 
-    @command(name="whcreate", aliases=['whc'])
+    @command(name="whcreate", aliases=['whc'], description='Create a webhook in the current channel')
     async def whcreate(self, ctx: Context, name: str = 'Made by Gccody'):
         channel: TextChannel | Any = ctx.channel
         if not isinstance(channel, TextChannel): return await ctx.reply('Not a viable channel for webhooks')
@@ -27,7 +27,7 @@ class WebhookCreate(Cog):
             return await ctx.reply('Creating the webhook failed')
         await ctx.reply(f'Webhook created: \n > {wh.url}')
 
-    @command(name='whdelete', aliases=['whd'])
+    @command(name='whdelete', aliases=['whd'], description='Delete a webhook in the current channel')
     async def whdelete(self, ctx: Context, identify: str):
         channel: TextChannel | Any = ctx.channel
         if not isinstance(channel, TextChannel): return await ctx.reply('Not a viable channel for webhooks')
@@ -47,7 +47,7 @@ class WebhookCreate(Cog):
                 await wh.delete()
                 await ctx.reply(f'Delted {wh.name}')
 
-    @command(name='whsend', aliases=['whs'])
+    @command(name='whsend', aliases=['whs'], description='Send a message through a webhook')
     async def whsend(self, ctx: Context, url: str, amount: int, *message: str):
         try:
             wh: Webhook = Webhook.from_url(url=url, adapter=RequestsWebhookAdapter())
