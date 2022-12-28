@@ -9,7 +9,7 @@ from discord.member import Member
 from discord.role import Role
 from discord.user import ClientUser
 from discord.guild import Guild
-from discord.errors import HTTPException
+from discord.errors import HTTPException, Forbidden
 from discord.permissions import Permissions
 from lib.scraped_user import ScrapedUser
 
@@ -18,7 +18,7 @@ class Users(Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
 
-    @command(name="info", aliases=['whois'])
+    @command(name="info", aliases=['whois'], description='Look up the details of a certain user')
     async def info(self, ctx: Context, _):
         msg: Message = ctx.message
         for member in msg.mentions:
@@ -45,7 +45,7 @@ Nitro: `{user.nitro}`
 """
         await ctx.reply(m)
 
-    @command(name='ban', aliases=['b'])
+    @command(name='ban', aliases=['b'], description='Ban a user or multiple users')
     async def ban(self, ctx: Context, *reason: str):
         if not bool(ctx.author.guild_permissions.ban_members):
             return await ctx.send(""">>> \nInvalid Permissions (Ban Members)""")
@@ -59,7 +59,7 @@ Nitro: `{user.nitro}`
 
         await ctx.reply(m)
 
-    @command(name='kick', aliases=['k'])
+    @command(name='kick', aliases=['k'], description='Kick a user or multiple users')
     async def kick(self, ctx: Context, *reason: str):
         auth = ctx.author
         if not bool(ctx.author.guild_permissions.kick_members):
@@ -75,7 +75,7 @@ Nitro: `{user.nitro}`
 
         await ctx.reply(m)
 
-    @command(name='add_role', aliases=['+role', 'addrole', '+r'])
+    @command(name='add_role', aliases=['+role', 'addrole', '+r'], description='Add a role or multiple roles to a user or multiple users')
     async def add_role(self, ctx: Context, _):
         if not bool(ctx.author.guild_permissions.manage_roles):
             return await ctx.send(">>> Invalid Permissions (Manage Roles)")
@@ -113,7 +113,7 @@ Nitro: `{user.nitro}`
         success_role = "\n".join(success_role)
         await ctx.reply(f"The member(s) ({success_member}) have received the following roles: \n{success_role}")
 
-    @command(name="remove_role", aliases=['-role', '-r', 'removerole'])
+    @command(name="remove_role", aliases=['-role', '-r', 'removerole'], description='Remove a role or multiple roles from a user or multiple users')
     async def remove_role(self, ctx: Context, _):
         if not bool(ctx.author.guild_permissions.manage_roles):
             return await ctx.send(">>> Invalid Permissions (Manage Roles)")
@@ -152,6 +152,29 @@ Nitro: `{user.nitro}`
         success_role = "\n".join(success_role)
         await ctx.reply(f"The member(s) ({success_member}) had the following roles removed: \n{success_role}")
 
+    @command(name="add_friend", aliases=['+friend', 'addfriend', '+f'], description='Send a friend request to a user or multiple users')
+    async def add_friend(self, ctx: Context, _):
+        if len(ctx.message.mentions) == 0:
+            return await ctx.send(f">>> Mention users to send friend requests")
+
+        success = []
+        failed = []
+        for member in ctx.message.mentions:
+            member: Member
+            if member._user.id == self.bot.user.id: continue
+            try:
+                await member.send_friend_request()
+                success.append(member.mention + f' ({member._user.id})')
+            except Forbidden:
+                failed.append(member.mention + f' ({member._user.id})')
+
+            if len(failed) > 0:
+                failed_str = '\n'.join(failed)
+                await ctx.reply(f"Failed to send request(s) to: >>>\n{failed_str}")
+
+            if len(success) > 0:
+                success_str = '\n'.join(success)
+                await ctx.reply(f'Sent request(s) to: >>>\n{success_str}')
 
 
 
