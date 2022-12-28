@@ -32,6 +32,20 @@ class Misc(Cog):
             embed: Embed = Embed(title='Already up to date!', colour=0x00ff00)
             self.bot.webhook.send('client', embed)
 
+    @command(name='update_config', aliases=['updateconfig', 'uc', 'set_config', 'setconfig', 'sc'])
+    async def update_config(self, ctx: Context, key: str, *value: str):
+        value = ' '.join(value)
+        print(key, value)
+        if key not in self.bot.config.valid_keys: return await ctx.send('Not a valid key')
+        self.bot.config.set(key, value)
+
+    @command(name='check_config', aliases=['checkconfig', 'cc'])
+    async def check_config(self, _):
+        data = vars(self.bot.config)['_Config__data']
+        empty = [key for key, val in data.items() if val == '']
+        if len(empty) == 0:  embed: Embed = Embed(title='Missing values', description='None', colour=0x00ff00)
+        else: embed: Embed = Embed(title='Missing values', description='```\n' + '\n'.join(empty) + ' \n```', colour=0xffff00)
+        self.bot.webhook.send('client', embed)
 
     @staticmethod
     def u():
@@ -44,10 +58,6 @@ class Misc(Cog):
         embed: Embed = Embed(title='Restarting...', colour=0x000000)
         self.bot.webhook.send('client', embed)
         os.execv(sys.executable, ['python'] + sys.argv)
-
-
-
-
 
 
 def setup(bot):

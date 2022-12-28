@@ -3,7 +3,7 @@ import re
 
 
 class Config():
-    valid_keys = ['threads', 'token', 'user', 'client', 'guild', 'error', 'guildId']
+    valid_keys = ['threads', 'token', 'scrape_delay', 'default_language', 'email', 'password', 'user', 'client', 'guild', 'error', 'guildId']
     TOKEN_REGEX = r'[MN][A-Za-z\d]{23}\.[\w-]{6}\.[\w-]{27}'
     WEBHOOK_REGEX = r'https://discord.com\/api\/webhooks\/([^\/]+)\/([^\/]+)'
 
@@ -14,6 +14,8 @@ class Config():
         self.token: str = self.__data["token"]
         self.scrape_delay: int = self.__data["scrape_delay"]
         self.default_language: str = self.__data["default_language"]
+        self.email = self.__data["email"]
+        self.password: str = self.__data["password"]
         self.user: str = self.__data["user"]
         self.client: str = self.__data["client"]
         self.guild: str = self.__data["guild"]
@@ -25,6 +27,7 @@ class Config():
             f.write(json.dumps(self.__data, sort_keys=False, indent=2))
 
     def set(self, key: str, value: any) -> None:
+        print("Setting!")
         if not self.__valid_key(key): raise KeyError(f"Invalid Key only valid keys are {self.valid_keys.__str__()}")
         self.__validate(key, value)
         exec(f"self.{key} = value")
@@ -40,7 +43,7 @@ class Config():
                 if int(value) <= 0: raise ValueError("Thread count can't be less then or equal to 0")
             case 'token':
                 if not re.match(self.TOKEN_REGEX, str(value)): raise Exception("Invalid Discord Token")
-            case 'guildId':
-                return
-            case _:
+            case 'user', 'client', 'guild', 'error':
                 if not re.match(self.WEBHOOK_REGEX, str(value)): raise Exception("Invalid Discord Webhook Url")
+            case _:
+                return
