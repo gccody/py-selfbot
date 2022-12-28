@@ -10,7 +10,6 @@ from discord.role import Role
 from discord.user import ClientUser
 from discord.guild import Guild
 from discord.errors import HTTPException, Forbidden
-from discord.permissions import Permissions
 from lib.scraped_user import ScrapedUser
 
 
@@ -22,6 +21,7 @@ class Users(Cog):
     async def info(self, ctx: Context, _):
         msg: Message = ctx.message
         for member in msg.mentions:
+            member: Member
             if type(member._user) is ClientUser:
                 u: ClientUser = member._user
                 m = f""">>> 
@@ -38,9 +38,14 @@ Created At: `{u.created_at.strftime(f"%m/%d/%Y, %I:%M:%S %p")}`
 {user.display_name}#{user.discriminator} ({user.id})
 
 Created At: `{user.created_at_str}`
+Joined At: `{member.joined_at.strftime(f"%m/%d/%Y, %I:%M:%S %p")}`
+Bot?: `{member.bot}`
+Top Role: `{member.top_role.mention}`
+Status: `{str(member.status).title()}`
+Activity: `{str(member.activity.type).split(".")[-1].title() if member.activity else 'N/A'} {member.activity.name if member.activity else ''}`
 Is Your Friend: `{user.is_friend}`
 Is Blocked: `{user.is_blocked}`
-Premium Since: `{member.premium_since}`
+Boosted: `{member.premium_since}`
 Nitro: `{user.nitro}`
 """
         await ctx.reply(m)
