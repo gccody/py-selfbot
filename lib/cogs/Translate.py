@@ -15,7 +15,7 @@ class Translate(Cog):
     def get_lang(self, lang: str | None):
         return lang if type(lang) is str else self.bot.config.default_language
 
-    @command(name="translate", aliases=['trans', 't'])
+    @command(name="translate", aliases=['trans', 't'], description='Reply to a message to translate or translate your own message')
     async def translate(self, ctx: Context, lang: str = None, *message: str):
         t = Translator(raise_exception=False)
         if ctx.message.reference:

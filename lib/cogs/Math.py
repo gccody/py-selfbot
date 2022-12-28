@@ -40,7 +40,7 @@ class Math(Cog):
         else:
             return None
 
-    @command(name="calc", aliases=['calculate'])
+    @command(name="calc", aliases=['calculate'], description='Simple calculator')
     async def calc(self, ctx: Context, expr: str):
         n, end_n = self.__get_number(expr)
         expr = expr[end_n:]

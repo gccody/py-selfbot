@@ -34,7 +34,7 @@ class Message(Cog):
 
         return ' '.join(times) + ' ago'
 
-    @command(name="since", aliases=['time', 's'])
+    @command(name="since", aliases=['time', 's'], description='Get the time how long ago a message was sent')
     async def since(self, ctx: Context):
         if ctx.message.reference is None: return
         try:

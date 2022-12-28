@@ -13,15 +13,15 @@ class Misc(Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
 
-    @command(name="restart", aliases=['rs'])
+    @command(name="restart", aliases=['rs'], description='Restart the bot')
     async def restart(self, _):
         self.r()
 
-    @command(name="pull")
+    @command(name="pull", description='Pull from github')
     async def pull(self, _):
         self.u()
 
-    @command(name="update")
+    @command(name="update", description='Update the bot if needed')
     async def update(self, ctx: Context):
         await ctx.message.delete()
         if self.u():
