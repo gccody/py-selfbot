@@ -3,10 +3,8 @@ from sqlite3 import Connection, Cursor, connect
 
 
 class DB:
-    # DB_PATH = "./data/database.db"
-    # BUILD_PATH = "./data/build.sql"
-    DB_PATH = "../../data/database.db"
-    BUILD_PATH = "../../data/build.sql"
+    DB_PATH = "./data/database.db"
+    BUILD_PATH = "./data/build.sql"
     cxn: Connection
     cur: Cursor
 
