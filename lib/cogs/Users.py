@@ -4,6 +4,7 @@ from discord.ext.commands import Cog
 from discord.ext.commands import command
 from discord.ext.commands.context import Context
 from discord.message import Message
+from discord.embeds import Embed
 from discord.user import User
 from discord.member import Member
 from discord.role import Role
@@ -132,7 +133,6 @@ Nitro: `{user.nitro}`
         invalid = []
         for match in matches:
             role: Role = guild.get_role(int(match.group(1)))
-            print(role.position, ctx.author.top_role.position)
             mem: Member
             if role.position < ctx.author.top_role.position or ctx.author.id == guild.owner_id:
                 valid.append(role)
@@ -167,7 +167,6 @@ Nitro: `{user.nitro}`
         success = []
         failed = []
         for member in ctx.message.mentions:
-            member: Member
             if member._user.id == self.bot.user.id: continue
             try:
                 await member.send_friend_request()
@@ -187,15 +186,20 @@ Nitro: `{user.nitro}`
     async def add_whitelist(self, ctx: Context):
         await ctx.message.delete()
         ids = self.bot.db.records('SELECT * FROM users')
-        for match in re.finditer(r"<@(\d+?)>", ctx.message.content, re.MULTILINE):
+        matches = re.finditer(r"<@(\d+?)>", ctx.message.content, re.MULTILINE)
+        for match in matches:
             id: str = match.group(1)
             if id not in ids:
                 self.bot.db.add_user(id, True)
             else:
                 self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', True, id)
 
+        embed: Embed = Embed(title='Whitelist', description=f'Successfully whitelisted {len(tuple(matches))} users', colour=0x00ff00)
+        self.bot.webhook.send('client', embed)
+
     @command(name='whitelistfriends')
     async def whitelist_friends(self, ctx: Context):
+        await ctx.message.delete()
         user: ClientUser = self.bot.user
         ids = self.bot.db.records('SELECT * FROM users')
         for friend in user.friends:
@@ -204,15 +208,24 @@ Nitro: `{user.nitro}`
             else:
                 self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', True, friend.id)
 
+        embed: Embed = Embed(title='Whitelist', description=f'Successfully whitelisted {len(user.friends)} friends',
+                             colour=0x00ff00)
+        self.bot.webhook.send('client', embed)
+
     @command(name='-whitelist')
     async def remove_whitelist(self, ctx: Context):
         await ctx.message.delete()
         ids = self.bot.db.records('SELECTE * FROM users')
-        for member in re.finditer(r"<@(\d+?)>", ctx.message.content, re.MULTILINE):
+        matches = re.finditer(r"<@(\d+?)>", ctx.message.content, re.MULTILINE)
+        for member in matches:
             if member.id not in ids:
                 self.bot.db.add_user(member.id)
             else:
                 self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', False, member.id)
+
+        embed: Embed = Embed(title='Whitelist', description=f'Successfully removed whitelist from {len(tuple(matches))} users',
+                             colour=0x00ff00)
+        self.bot.webhook.send('client', embed)
 
 
 def setup(bot):

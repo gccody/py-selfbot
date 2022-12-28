@@ -21,7 +21,7 @@ class Scrape(Cog):
 
     @command(name="scrapped_length", aliases=['length', 'slength', 'len', 'slen', 'scrappedlength'], description='Get the amount of users scrapped so far')
     async def scrapped_length(self, ctx: Context):
-        await ctx.send(str(len(self.bot.db.records('SELECT * FROM users'))))
+        await ctx.reply(str(len(self.bot.db.records('SELECT * FROM users'))))
 
     @command(name='dm_scrapped', aliases=['massdm', 'dmscrapped', 'dms'], description='Dm the users that are scrapped so far')
     async def dm_scrapped(self, ctx: Context, *message):
