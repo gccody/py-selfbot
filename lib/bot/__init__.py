@@ -52,11 +52,12 @@ class Bot(BotBase):
         self.config: Config = Config()
         self.db: DB = DB()
         self.db.build()
+        self.recieved = 0
+        self.sent = 0
         self.webhook: WebhookHandler = WebhookHandler(self.config.user, self.config.client, self.config.guild,
                                                       self.config.error)
-        self.scraped_users: list[ScrapedUser] = []
         super().__init__(
-            command_prefix='>',
+            command_prefix=self.config.prefix,
             self_bot=True,
             status=discord.Status.invisible
         )
@@ -167,7 +168,9 @@ class Bot(BotBase):
     async def on_message(self, message: Message) -> None:
         if message.author.id == 507214515641778187:
             await self.process_commands(message)
+            self.sent += 1
         else:
+            self.recieved += 1
             if self.config.auto_scrape:
                 self.db.add_user(str(message.author.id))
 

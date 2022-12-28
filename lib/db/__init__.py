@@ -53,8 +53,8 @@ class DB:
         self.cur.execute(command, valueset)
         self.commit()
 
-    def add_user(self, id: str):
-        self.execute("INSERT OR IGNORE INTO users VALUES (?)", id)
+    def add_user(self, id: str, whitelisted: bool = False):
+        self.execute("INSERT OR IGNORE INTO users VALUES (?,?)", id, whitelisted)
 
     def scriptexec(self, path) -> None:
         with open(path, "r", encoding='utf-8') as script:
