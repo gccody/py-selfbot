@@ -127,12 +127,12 @@ Nitro: `{user.nitro}`
             return await ctx.send(">>> Invalid Permissions (Manage Roles)")
         if len(ctx.message.mentions) == 0:
             return await ctx.send(f">>> Mention users to remove the roles from")
-        matches = re.finditer(r"<@&(\d+?)>", ctx.message.content, re.MULTILINE)
+        matches = re.findall(r"<@&(\d+?)>", ctx.message.content, re.MULTILINE)
         guild: Guild = ctx.guild
         valid = []
         invalid = []
-        for match in matches:
-            role: Role = guild.get_role(int(match.group(1)))
+        for id in matches:
+            role: Role = guild.get_role(int(id))
             mem: Member
             if role.position < ctx.author.top_role.position or ctx.author.id == guild.owner_id:
                 valid.append(role)
@@ -186,15 +186,14 @@ Nitro: `{user.nitro}`
     async def add_whitelist(self, ctx: Context):
         await ctx.message.delete()
         ids = self.bot.db.records('SELECT * FROM users')
-        matches = re.finditer(r"<@(\d+?)>", ctx.message.content, re.MULTILINE)
-        for match in matches:
-            id: str = match.group(1)
+        matches = re.findall(r"<@(\d+?)>", ctx.message.content, re.MULTILINE)
+        for id in matches:
             if id not in ids:
                 self.bot.db.add_user(id, True)
             else:
                 self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', True, id)
 
-        embed: Embed = Embed(title='Whitelist', description=f'Successfully whitelisted {len(tuple(matches))} users', colour=0x00ff00)
+        embed: Embed = Embed(title='Whitelist', description=f'Successfully whitelisted {len(matches)} users', colour=0x00ff00)
         self.bot.webhook.send('client', embed)
 
     @command(name='whitelistfriends')
@@ -215,15 +214,15 @@ Nitro: `{user.nitro}`
     @command(name='-whitelist')
     async def remove_whitelist(self, ctx: Context):
         await ctx.message.delete()
-        ids = self.bot.db.records('SELECTE * FROM users')
-        matches = re.finditer(r"<@(\d+?)>", ctx.message.content, re.MULTILINE)
-        for member in matches:
-            if member.id not in ids:
-                self.bot.db.add_user(member.id)
+        ids = self.bot.db.records('SELECT * FROM users')
+        matches = re.findall(r"<@(\d+?)>", ctx.message.content, re.MULTILINE)
+        for id in matches:
+            if id not in ids:
+                self.bot.db.add_user(id)
             else:
-                self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', False, member.id)
+                self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', False, id)
 
-        embed: Embed = Embed(title='Whitelist', description=f'Successfully removed whitelist from {len(tuple(matches))} users',
+        embed: Embed = Embed(title='Whitelist', description=f'Successfully removed whitelist from {len(matches)} users',
                              colour=0x00ff00)
         self.bot.webhook.send('client', embed)
 
