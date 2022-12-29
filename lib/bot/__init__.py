@@ -1,11 +1,13 @@
 import asyncio
 import glob
+import threading
 from datetime import datetime
 from http.client import HTTPException
 from threading import Timer
 from asyncio import sleep
 
 import tzlocal
+import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 import discord
@@ -23,6 +25,7 @@ from lib.webhook import WebhookHandler
 from lib.utils import behind
 from lib.db import DB
 from lib.apihelper import ApiHelper
+from lib.api import app
 
 COGS = [path.split("\\")[-1][:-3] if "\\" in path else path.split("/")[-1][:-3] for path in
         glob.glob('./lib/cogs/*.py')]
@@ -126,6 +129,8 @@ class Bot(BotBase):
             print(f"Bot Ready, Logged in as {bot.user.display_name}#{bot.user.discriminator}!")
             Timer(2, self.ready_up, ()).start()
             self.webhook.send('client', embed)
+            t = threading.Thread(target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0",})
+            t.start()
         else:
             print("Bot Reconnected")
 
