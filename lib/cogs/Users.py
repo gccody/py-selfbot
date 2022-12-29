@@ -12,6 +12,8 @@ from discord.user import ClientUser
 from discord.guild import Guild
 from discord.errors import HTTPException, Forbidden
 from lib.scraped_user import ScrapedUser
+from discord.permissions import Permissions
+from discum.utils.slash import SlashCommander
 
 
 class Users(Cog):
@@ -65,9 +67,20 @@ Nitro: `{user.nitro}`
 
         await ctx.reply(m)
 
+    @command(name='hackban')
+    async def hack_ban(self, ctx: Context, *reason: str):
+        if not bool(ctx.author.guild_permissions.ban_members):
+            return await ctx.send(""">>> \nInvalid Permissions (Ban Members)""")
+        ids = re.findall(r'\d{17,19}', " ".join(reason))
+        reason = re.sub(r'\d{17,19}', "", " ".join(reason)).strip()
+        guild: Guild = ctx.guild
+        for id in ids:
+            await guild.ban(self.bot.get_user(id=(int(id))), reason=reason)
+
+        await ctx.reply(f'>>> Banned {len(ids)} members')
+
     @command(name='kick', aliases=['k'], description='Kick a user or multiple users')
     async def kick(self, ctx: Context, *reason: str):
-        auth = ctx.author
         if not bool(ctx.author.guild_permissions.kick_members):
             return await ctx.send(""">>> \nInvalid Permissions (Kick Members)""")
         reason = re.sub(r'<@\d+>', "", " ".join(reason)).strip()
@@ -81,6 +94,25 @@ Nitro: `{user.nitro}`
 
         await ctx.reply(m)
 
+    @command(name='mute', description='Mute a user or multiple users')
+    async def mute(self, ctx: Context, minutes: int, *reason: str):
+        perm: Permissions
+        if not bool(ctx.author.guild_permissions.mute_members):
+            return await ctx.send(""">>> \nInvalid Permissions (Mute Members)""")
+        reason = re.sub(r'<@\d+>', "", " ".join(reason)).strip()
+        success = []
+        failed = []
+        new = "\n"
+        for member in ctx.message.mention:
+            mem: Member
+            res = self.bot.api_helper.timeout_user(str(member.id), str(ctx.guild.id), minutes)
+            if res: success.append(member.mention)
+            else: failed.append(member.mention)
+
+        if len(success) > 0: await ctx.reply(f'Successfully timed out: >>> {new.join(success)}')
+        if len(failed) > 0: await ctx.reply(f'Failed to timeout: >>> {new.join(failed)}')
+
+
     @command(name='add_role', aliases=['+role', 'addrole', '+r'],
              description='Add a role or multiple roles to a user or multiple users')
     async def add_role(self, ctx: Context, _):
@@ -92,6 +124,7 @@ Nitro: `{user.nitro}`
         guild: Guild = ctx.guild
         valid = []
         invalid = []
+        new = "\n"
         for match in matches:
             role: Role = guild.get_role(int(match.group(1)))
             print(role.position, ctx.author.top_role.position)
@@ -101,14 +134,12 @@ Nitro: `{user.nitro}`
                 invalid.append(f"<@&{role.id}>")
 
         if len(invalid) > 0:
-            invalid_str = "\n".join(invalid)
-            await ctx.reply(f">>> Invalid Roles: {invalid_str}")
+            await ctx.reply(f">>> Invalid Roles: {new.join(invalid)}")
 
         if len(valid) == 0: return
 
         success_member = []
         success_role = [f"<@&{role.id}>" for role in valid]
-        print(valid)
         for member in ctx.message.mentions:
             try:
                 await member.add_roles(*valid)
@@ -131,6 +162,7 @@ Nitro: `{user.nitro}`
         guild: Guild = ctx.guild
         valid = []
         invalid = []
+        new = "\n"
         for id in matches:
             role: Role = guild.get_role(int(id))
             mem: Member
@@ -140,8 +172,7 @@ Nitro: `{user.nitro}`
                 invalid.append(f"<@&{role.id}>")
 
         if len(invalid) > 0:
-            invalid_str = "\n".join(invalid)
-            await ctx.reply(f">>> Invalid Roles: {invalid_str}")
+            await ctx.reply(f">>> Invalid Roles: {new.join(invalid)}")
 
         if len(valid) == 0: return
 

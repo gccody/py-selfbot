@@ -22,6 +22,7 @@ from lib.scraped_user import ScrapedUser
 from lib.webhook import WebhookHandler
 from lib.utils import behind
 from lib.db import DB
+from lib.apihelper import ApiHelper
 
 COGS = [path.split("\\")[-1][:-3] if "\\" in path else path.split("/")[-1][:-3] for path in
         glob.glob('./lib/cogs/*.py')]
@@ -52,6 +53,8 @@ class Bot(BotBase):
         self.config: Config = Config()
         self.db: DB = DB()
         self.db.build()
+        self.api_helper: ApiHelper = ApiHelper(self.config.token)
+        self.invis = "||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||"
         self.recieved = 0
         self.sent = 0
         self.webhook: WebhookHandler = WebhookHandler(self.config.user, self.config.client, self.config.guild,
@@ -133,6 +136,7 @@ class Bot(BotBase):
         print(f"Bot Disconnected, Retrying to sign into user {self.user.display_name}#{self.user.discriminator}")
 
     async def on_error(self, err, *args, **kwargs) -> None:
+        print('command_error' in err)
         vals = str(args[1]).split(":")
         embed: Embed = Embed(title=vals[1], description=f"```{':'.join(vals[2:]).strip()}```", colour=0xff0000)
         print(err, args)
@@ -157,7 +161,8 @@ class Bot(BotBase):
             if isinstance(exc.original, HTTPException):
                 await ctx.send("Unable to send message.")
             if isinstance(exc.original, discord.Forbidden):
-                await ctx.send("I do not have permission to do that.")
+                print(exc)
+                await ctx.send("Insufficient Permissions.")
 
             else:
                 raise exc.original
