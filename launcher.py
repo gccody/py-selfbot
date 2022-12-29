@@ -1,16 +1,30 @@
+import asyncio
+import threading
+
 from lib.bot import bot
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 import uvicorn
-import threading
+import multiprocessing
 
 app = FastAPI()
 
 VERSION = "0.5.0"
 
 
+def run():
+    bot.run(VERSION)
+
+
+@app.on_event("startup")
+async def startup_event():
+    t = threading.Thread(target=run)
+    t.start()
+
+
 @app.get("/api/embed/")
-async def root(title: str = "Gccody", description: str = "Self bot created by Gccody", url: str = "https://gccody.com", color: str = "00ff00", image: str = "https://i.imgur.com/n5mioQi.jpg"):
+async def root(title: str = "Gccody", description: str = "Self bot created by Gccody", url: str = "https://gccody.com",
+               color: str = "00ff00", image: str = "https://i.imgur.com/n5mioQi.jpg"):
     return HTMLResponse(content=f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -28,14 +42,10 @@ async def root(title: str = "Gccody", description: str = "Self bot created by Gc
   <meta content="#{color}" data-react-helmet="true" name="theme-color" />
 </head>
 <body>
-  
+
 </body>
 </html>
     """)
 
-
-if __name__ == "__main__":
-    t = threading.Thread(target=bot.run, args=(VERSION,))
-    t.start()
-
-    uvicorn.run(app, host='0.0.0.0')
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0")
