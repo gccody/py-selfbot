@@ -129,7 +129,7 @@ class Bot(BotBase):
             print(f"Bot Ready, Logged in as {bot.user.display_name}#{bot.user.discriminator}!")
             Timer(2, self.ready_up, ()).start()
             self.webhook.send('client', embed)
-            t = threading.Thread(target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0",})
+            t = threading.Thread(target=uvicorn.run, args=(app,), kwargs={"host": "0.0.0.0", "port": 80})
             t.start()
         else:
             print("Bot Reconnected")
