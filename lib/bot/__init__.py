@@ -22,7 +22,7 @@ from discord.message import Message
 from lib.config import Config
 from lib.scraped_user import ScrapedUser
 from lib.webhook import WebhookHandler
-from lib.utils import behind
+from lib.utils import Utils
 from lib.db import DB
 from lib.apihelper import ApiHelper
 from lib.api import app
@@ -57,6 +57,7 @@ class Bot(BotBase):
         self.db: DB = DB()
         self.db.build()
         self.api_helper: ApiHelper = ApiHelper(self.config.token)
+        self.utils: Utils = Utils()
         self.invis = "||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||"
         self.recieved = 0
         self.sent = 0
@@ -71,7 +72,7 @@ class Bot(BotBase):
         self.scheduler.add_job(self.check_update, trigger='cron', minute='0,30')
 
     def check_update(self) -> None:
-        if behind():
+        if self.utils.behind():
             embed: Embed = Embed(title='New update available!',
                                  description='Run the command `>update` to update the self bot', colour=0xff0000)
             self.webhook.send('error', embed)
@@ -129,8 +130,8 @@ class Bot(BotBase):
             print(f"Bot Ready, Logged in as {bot.user.display_name}#{bot.user.discriminator}!")
             Timer(2, self.ready_up, ()).start()
             self.webhook.send('client', embed)
-            t = threading.Thread(target=uvicorn.run, args=(app,), kwargs={"host": "127.0.0.1", "port": 8000})
-            t.start()
+            # t = threading.Thread(target=uvicorn.run, args=(app,), kwargs={"host": "127.0.0.1", "port": 8000})
+            # t.start()
         else:
             print("Bot Reconnected")
 

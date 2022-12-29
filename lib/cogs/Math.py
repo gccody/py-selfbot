@@ -49,7 +49,7 @@ class Math(Cog):
             n2, end_n = self.__get_number(expr)
             n = self.__perform_operation(op, n, n2)
             expr = expr[end_n:]
-        await ctx.reply(n)
+        await ctx.reply(self.bot.utils.embed(author='Calc', title='Calc Command', description=f'expression>>>{ctx.message.content.replace("calc", "").strip()} \nanswer>>>{n}', color="00ff00"))
 
 
 def setup(bot):
