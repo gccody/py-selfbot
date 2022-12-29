@@ -4,3 +4,5 @@ GitPython==3.1.18
 requests==2.26.0
 APScheduler~=3.9.1.post1
 tzlocal~=4.2
+discum~=1.4.1
+fastapi~=0.88.0

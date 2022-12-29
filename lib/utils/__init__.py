@@ -8,4 +8,3 @@ def behind():
     res = subprocess.run(cmd2, stdout=subprocess.PIPE)
 
     return "Your branch is behind" in res.stdout.decode('utf-8')
-
