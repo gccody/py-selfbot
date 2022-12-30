@@ -98,7 +98,7 @@ class Bot(BotBase):
         except LoginFailure:
             embed: Embed = Embed(title="Error logging in",
                                  description="Replace old discord token with new token then start bot again!",
-                                 colour=0xff00000)
+                                 colour=0xff0000)
             self.webhook.send('client', embed=embed)
 
     async def process_commands(self, message) -> None:
