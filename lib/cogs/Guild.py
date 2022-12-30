@@ -4,6 +4,7 @@ from discord.ext.commands import Cog
 from discord.ext.commands import command
 from discord.ext.commands.context import Context
 from discord.guild import Guild, TextChannel
+from discord import Member
 
 
 class Gguild(Cog):
@@ -40,10 +41,7 @@ class Gguild(Cog):
 
     @command(name='-text')
     async def remove_text_channel(self, ctx: Context):
-        guild: Guild
-        ch: TextChannel
-        await ch.delete()
-        await ctx.channel
+        await ctx.channel.delete()
 
 
 def setup(bot):

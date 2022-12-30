@@ -51,7 +51,7 @@ Is Blocked: `{user.is_blocked}`
 Boosted: `{member.premium_since}`
 Nitro: `{user.nitro}`
 """
-        await ctx.reply(m)
+            await ctx.reply(m)
 
     @command(name='ban', aliases=['b'], description='Ban a user or multiple users')
     async def ban(self, ctx: Context, *reason: str):
@@ -94,24 +94,46 @@ Nitro: `{user.nitro}`
 
         await ctx.reply(m)
 
-    @command(name='mute', description='Mute a user or multiple users')
-    async def mute(self, ctx: Context, minutes: int, *reason: str):
-        perm: Permissions
+    @command(name='+timeout', description='Timeout a user or multiple users')
+    async def add_timeout(self, ctx: Context, minutes: int, *reason: str):
+        print('Starting timeout')
         if not bool(ctx.author.guild_permissions.mute_members):
             return await ctx.send(""">>> \nInvalid Permissions (Mute Members)""")
         reason = re.sub(r'<@\d+>', "", " ".join(reason)).strip()
         success = []
         failed = []
         new = "\n"
-        for member in ctx.message.mention:
-            mem: Member
-            res = self.bot.api_helper.timeout_user(str(member.id), str(ctx.guild.id), minutes)
-            if res: success.append(member.mention)
-            else: failed.append(member.mention)
+        for member in ctx.message.mentions:
+            print(member.id)
+            res = self.bot.api_helper.timeout_user(str(member.id), str(ctx.guild.id), minutes, reason)
+            print(res)
+            if res:
+                success.append(member.mention)
+            else:
+                failed.append(member.mention)
 
         if len(success) > 0: await ctx.reply(f'Successfully timed out: >>> {new.join(success)}')
         if len(failed) > 0: await ctx.reply(f'Failed to timeout: >>> {new.join(failed)}')
 
+    @command(name='-timeout', description='Un-timeout a user or multiple users')
+    async def remove_timeout(self, ctx: Context, _):
+        perm: Permissions
+        if not bool(ctx.author.guild_permissions.mute_members):
+            return await ctx.send(""">>> \nInvalid Permissions (Mute Members)""")
+        success = []
+        failed = []
+        new = "\n"
+        for member in ctx.message.mentions:
+            mem: Member
+            res = self.bot.api_helper.remove_timeout(str(member.id), str(ctx.guild.id))
+            print(res)
+            if res:
+                success.append(member.mention)
+            else:
+                failed.append(member.mention)
+
+        if len(success) > 0: await ctx.reply(f'Successfully removed timed out: >>> {new.join(success)}')
+        if len(failed) > 0: await ctx.reply(f'Failed to remove timeout: >>> {new.join(failed)}')
 
     @command(name='add_role', aliases=['+role', 'addrole', '+r'],
              description='Add a role or multiple roles to a user or multiple users')
@@ -224,7 +246,8 @@ Nitro: `{user.nitro}`
             else:
                 self.bot.db.execute('UPDATE users SET whitelisted = ? WHERE id = ?', True, id)
 
-        embed: Embed = Embed(title='Whitelist', description=f'Successfully whitelisted {len(matches)} users', colour=0x00ff00)
+        embed: Embed = Embed(title='Whitelist', description=f'Successfully whitelisted {len(matches)} users',
+                             colour=0x00ff00)
         self.bot.webhook.send('client', embed)
 
     @command(name='whitelistfriends')
