@@ -1,5 +1,6 @@
 import asyncio
 import glob
+import sys
 import threading
 from datetime import datetime
 from http.client import HTTPException
@@ -100,6 +101,7 @@ class Bot(BotBase):
                                  description="Replace old discord token with new token then start bot again!",
                                  colour=0xff0000)
             self.webhook.send('client', embed=embed)
+            sys.exit()
 
     async def process_commands(self, message) -> None:
         ctx = await self.get_context(message, cls=Context)
