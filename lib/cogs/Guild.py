@@ -1,10 +1,10 @@
-import re
 from lib.bot import Bot
 from discord.ext.commands import Cog
 from discord.ext.commands import command
 from discord.ext.commands.context import Context
 from discord.guild import Guild, TextChannel
-from discord import Member
+from typing import Optional
+from discord.embeds import Embed
 
 
 class Gguild(Cog):
@@ -42,6 +42,22 @@ class Gguild(Cog):
     @command(name='-text')
     async def remove_text_channel(self, ctx: Context):
         await ctx.channel.delete()
+
+    @command(name='guild_delete', aliases=['-guild', 'guilddelete', 'guildelete'])
+    async def guild_delete(self, ctx: Context, code: Optional[str]):
+        await ctx.message.delete()
+        if not code and self.bot.mfa():
+            embed: Embed = Embed(title='Mfa', description=f'In order to delete the guild you need to send the mfa code to delete. Ex: {self.bot.command_prefix}-guild <code>', colour=0xff0000)
+            self.bot.webhook.send('error', embed)
+        guild: Guild = ctx.guild
+        if guild.owner_id != ctx.author.id:
+            embed: Embed = Embed(title='Missing Perms', description=f'In order to delete guild you need to be owner of the guild', colour=0xff0000)
+            self.bot.webhook.send('error', embed)
+        return self.bot.api_helper.remove_guild(guild.id, code)
+
+    @guild_delete.error
+    async def guild_delete_error(self, ctx, exc):
+        pass
 
 
 def setup(bot):
