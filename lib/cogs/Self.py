@@ -1,10 +1,9 @@
 import json
+
 import requests
 from discord.ext.commands import Cog
 from discord.ext.commands import command
 from discord.ext.commands.context import Context
-from discord import ClientUser
-
 
 from lib.bot import Bot
 
@@ -17,7 +16,7 @@ class Self(Cog):
     async def change_discriminator(self, ctx: Context, discrim: str):
         res, data = self.bot.api_helper.set_username(self.bot.user.name, discrim.strip())
         if res:
-            await ctx.reply(f'>>> Discriminator changed to {self.bot.user.name}#{self.bot.user.discriminator}')
+            await ctx.reply(f'>>> Discriminator changed to {self.bot.user.name}#{discrim.strip()}')
         else:
             if 'retry_after' in data:
                 await ctx.reply(
@@ -30,7 +29,7 @@ class Self(Cog):
     async def change_username(self, ctx: Context, username: str):
         res, data = self.bot.api_helper.set_username(username.strip(), self.bot.user.discriminator)
         if res:
-            await ctx.reply(f'>>> Username changed to {self.bot.user.name}#{self.bot.user.discriminator}')
+            await ctx.reply(f'>>> Username changed to {username.strip()}#{self.bot.user.discriminator}')
         else:
             if 'retry_after' in data:
                 await ctx.reply(
@@ -67,13 +66,6 @@ class Self(Cog):
                 print(data)
                 await ctx.reply('Failed')
 
-    @command(name='my_info')
-    async def my_info(self, ctx: Context):
-        print(json.dumps(requests.get("https://discordapp.com/api/v6/users/@me", headers={"Authorization": self.bot.config.token, 'Content-Type': 'application/json'}).json(), indent=4))
-
-    @command(name='mfa')
-    async def mfa(self, ctx: Context):
-        print(self.bot.user.mfa_enabled)
 
 def setup(bot):
     bot.add_cog(Self(bot))
