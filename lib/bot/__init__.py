@@ -85,6 +85,9 @@ class Bot(BotBase):
             self.cogs_ready.ready_up(cog)
         print("Setup Complete")
 
+    def mfa(self):
+        return self.api_helper.mfa_enabled()
+
     def run(self, version) -> None:
 
         self.VERSION = version
@@ -144,7 +147,9 @@ class Bot(BotBase):
         print(f"Bot Disconnected, Retrying to sign into user {self.user.display_name}#{self.user.discriminator}")
 
     async def on_error(self, err, *args, **kwargs) -> None:
-        print('command_error' in err)
+        print('Task exc' in err)
+        if 'command_error' in err:
+            return
         vals = str(args[1]).split(":")
         embed: Embed = Embed(title=vals[1], description=f"```{':'.join(vals[2:]).strip()}```", colour=0xff0000)
         print(err, args)
@@ -173,9 +178,12 @@ class Bot(BotBase):
                 await ctx.send("Insufficient Permissions.")
 
             else:
+                print('Task exception' in exc.original)
                 raise exc.original
 
         else:
+            return
+            print('EXC')
             raise exc
 
     async def on_message(self, message: Message) -> None:
