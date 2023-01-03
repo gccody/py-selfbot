@@ -1,5 +1,5 @@
 import asyncio
-from time import sleep
+from asyncio import sleep
 
 from discord.abc import GuildChannel
 from discord.channel import TextChannel
@@ -17,7 +17,9 @@ class Setup(Cog):
     def __init__(self, bot):
         self.bot: Bot = bot
 
-    async def delete_channel(self, channel: GuildChannel) -> None:
+    async def delete_channel(self, channel_id: str) -> None:
+        channel = self.bot.get_channel(int(channel_id))
+        if not channel: return
         await channel.delete()
         print(f"Deleted channel {channel.name}")
 
@@ -34,13 +36,19 @@ class Setup(Cog):
         await ctx.message.delete()
         guild: Guild = await self.bot.create_guild(name="Gccody Selfbot Logging",
                                                    icon=open('./lib/utils/logo.jpg', 'rb').read())
+        deleted = []
         self.bot.config.set('guildId', str(guild.id))
-        for channel in guild.channels:
-            asyncio.ensure_future(self.delete_channel(channel))
-        channels: list[str] = ['user-updates', 'client-updates', 'guild-updates', 'unhandled-errors']
+        channels = self.bot.api_helper.get_channels(guild.id)
+        for channel in channels:
+            deleted.append(asyncio.ensure_future(self.delete_channel(channel)))
+        await asyncio.gather(*deleted)
+        channels: list[str] = ['user-updates', 'client-updates', 'guild-updates', 'errors']
         keys: list[str] = ['user', 'client', 'guild', 'error']
+        created = []
         for name, key in zip(channels, keys):
-            asyncio.ensure_future(self.create_channel(guild, name, key))
+            created.append(asyncio.create_task(self.create_channel(guild, name, key)))
+
+        await asyncio.gather(*created)
 
         embed: Embed = Embed()
         embed.title = "Guild Created"
@@ -48,11 +56,10 @@ class Setup(Cog):
         embed.description = "New guild is created and all channels are setup. Ready to run. Ignore Runtime Error in console"
 
         warning: Embed = Embed()
-        embed.title = "Warning"
-        embed.color = 0xff0000
-        embed.description = "DO NOT MODIFY THIS GUILD OR YOU MIGHT BREAK THINGS. IF THINGS ARE BROKEN AND CAN'T BE FIXED THEN YOU HAVE TO DO `.setup\` ALL OVER AGAIN"
+        warning.title = "Warning"
+        warning.colour = 0xff0000
+        warning.description = f"DO NOT MODIFY THIS GUILD OR YOU MIGHT BREAK THINGS. IF THINGS ARE BROKEN AND CAN'T BE FIXED THEN YOU HAVE TO DO `{self.bot.command_prefix}setup` ALL OVER AGAIN"
 
-        sleep(5)
         self.bot.webhook.send('client', embed)
         self.bot.webhook.send('guild', warning)
 
