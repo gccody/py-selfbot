@@ -14,7 +14,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import discord
 from discord.embeds import Embed
 from discord.errors import LoginFailure
-from discord.ext.commands import Bot as BotBase
+from discord.ext.commands import Bot as BotBase, has_permissions
 from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, CommandOnCooldown, \
     MissingPermissions, BotMissingPermissions
 from discord.ext.commands.context import Context
@@ -22,6 +22,7 @@ from discord.message import Message
 
 from lib.config import Config
 from lib.scraped_user import ScrapedUser
+from discord.permissions import Permissions
 from lib.webhook import WebhookHandler
 from lib.utils import Utils
 from lib.db import DB
@@ -85,8 +86,8 @@ class Bot(BotBase):
             self.cogs_ready.ready_up(cog)
         print("Setup Complete")
 
-    def mfa(self):
-        return self.api_helper.mfa_enabled()
+    async def mfa(self):
+        return await self.api_helper.mfa_enabled()
 
     def run(self, version) -> None:
 
@@ -126,7 +127,7 @@ class Bot(BotBase):
             ]
             for name, value, inline in fields:
                 embed.add_field(name=name, value=value, inline=inline)
-            embed.set_author(name="Gccody")
+            embed.set_author(name=f"{self.user.display_name}#{self.user.discriminator}")
             embed.set_footer(text="Gccody#0001 |")
             while not self.cogs_ready.all_ready():
                 print([getattr(self.cogs_ready, cog) for cog in COGS])
@@ -147,7 +148,6 @@ class Bot(BotBase):
         print(f"Bot Disconnected, Retrying to sign into user {self.user.display_name}#{self.user.discriminator}")
 
     async def on_error(self, err, *args, **kwargs) -> None:
-        print('Task exc' in err)
         if 'command_error' in err:
             return
         vals = str(args[1]).split(":")
@@ -162,28 +162,30 @@ class Bot(BotBase):
         elif isinstance(exc, MissingRequiredArgument):
             await ctx.send("One or more required arguments are missing.")
         elif isinstance(exc, CommandOnCooldown):
-            await ctx.send(
-                f"That command is on {str(exc.cooldown.type).split('.')[-1]} cooldown. Try again in {exc.retry_after:,.2f} seconds.")
+            await ctx.message.delete()
+            embed: Embed = Embed(title='Command on Cooldown', description=f"That command is on {str(exc.cooldown.type).split('.')[-1]} cooldown. Try again in {exc.retry_after:,.2f} seconds.", colour=0xff0000)
+            self.webhook.send('error', embed)
         elif isinstance(exc, MissingPermissions):
             pass
         elif isinstance(exc, BotMissingPermissions):
-            pass
+            await ctx.message.delete()
+            embed: Embed = Embed(title='Permissions Error', description=f">>> {exc}", colour=0xff0000)
+            self.webhook.send('error', embed)
         elif isinstance(exc, HTTPException):
-            await ctx.send("An error has occured")
+            embed: Embed = Embed(title="Http Error", description='Message failed to send', colour=0xff0000)
+            self.webhook.send('error', embed)
         elif hasattr(exc, "original"):
             if isinstance(exc.original, HTTPException):
-                await ctx.send("Unable to send message.")
+                embed: Embed = Embed(title="Http Error", description='Message failed to send', colour=0xff0000)
+                self.webhook.send('error', embed)
             if isinstance(exc.original, discord.Forbidden):
-                print(exc)
-                await ctx.send("Insufficient Permissions.")
-
+                await ctx.message.delete()
+                embed: Embed = Embed(title='Forbidden Error', description='Insufficient Permissions', colour=0xff0000)
+                self.webhook.send('error', embed)
             else:
-                print('Task exception' in exc.original)
                 raise exc.original
 
         else:
-            return
-            print('EXC')
             raise exc
 
     async def on_message(self, message: Message) -> None:
@@ -194,6 +196,5 @@ class Bot(BotBase):
             self.recieved += 1
             if self.config.auto_scrape:
                 self.db.add_user(str(message.author.id))
-
 
 bot: Bot = Bot()
