@@ -7,3 +7,4 @@ tzlocal~=4.2
 discum~=1.4.1
 fastapi~=0.88.0
 uvicorn~=0.20.0
+aiohttp~=3.7.4.post0
