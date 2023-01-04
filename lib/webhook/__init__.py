@@ -25,10 +25,10 @@ class WebhookHandler:
         try:
             exec(f"self.{key}.send(username=\"{key.title()} Update\", embed=embed)")
         except NotFound:
-            print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
-            print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
-            print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
-            print("USE >setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
+            print("USE <prefix>setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
+            print("USE <prefix>setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
+            print("USE <prefix>setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
+            print("USE <prefix>setup TO GET WEBHOOKS WORKING PROPERLY!!!!!!!!")
 
     def print_url(self, key) -> str:
         exec(f"print(self.{key})")
