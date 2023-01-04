@@ -1,6 +1,8 @@
+import asyncio
+
 from lib.bot import Bot
 from discord.ext.commands import Cog
-from discord.ext.commands import command
+from discord.ext.commands import command, bot_has_permissions
 from discord.ext.commands.context import Context
 from discord.guild import Guild, TextChannel
 from typing import Optional
@@ -40,20 +42,22 @@ class Gguild(Cog):
         await ctx.guild.create_category(name=" ".join(name))
 
     @command(name='-text')
+    @bot_has_permissions(manage_channels=True)
     async def remove_text_channel(self, ctx: Context):
+        await ctx.message.delete()
         await ctx.channel.delete()
 
     @command(name='guild_delete', aliases=['-guild', 'guilddelete', 'guildelete'])
     async def guild_delete(self, ctx: Context, code: Optional[str]):
         await ctx.message.delete()
-        if not code and self.bot.mfa():
-            embed: Embed = Embed(title='Mfa', description=f'In order to delete the guild you need to send the mfa code to delete. Ex: {self.bot.command_prefix}-guild <code>', colour=0xff0000)
-            self.bot.webhook.send('error', embed)
         guild: Guild = ctx.guild
         if guild.owner_id != ctx.author.id:
             embed: Embed = Embed(title='Missing Perms', description=f'In order to delete guild you need to be owner of the guild', colour=0xff0000)
-            self.bot.webhook.send('error', embed)
-        return self.bot.api_helper.remove_guild(guild.id, code)
+            return self.bot.webhook.send('error', embed)
+        if not code and self.bot.mfa():
+            embed: Embed = Embed(title='Mfa', description=f'In order to delete the guild you need to send the mfa code to delete. Ex: {self.bot.command_prefix}-guild <code>', colour=0xff0000)
+            return self.bot.webhook.send('error', embed)
+        asyncio.create_task(self.bot.api_helper.remove_guild(guild.id, code))
 
     @guild_delete.error
     async def guild_delete_error(self, ctx, exc):
