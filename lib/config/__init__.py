@@ -10,7 +10,6 @@ class Config():
         with open('config.json', 'r', encoding='utf-8') as f:
             self.__data = json.loads(f.read())
         self.prefix: str = self.__data["prefix"] if 'prefix' in self.__data else ">"
-        self.threads: int = self.__data["threads"] if 'threads' in self.__data else 0
         self.token: str = self.__data["token"] if 'token' in self.__data else ""
         self.scrape_delay: int = self.__data["scrape_delay"] if 'scrape_delay' in self.__data else 0
         self.default_language: str = self.__data["default_language"] if 'default_language' in self.__data else ""
@@ -53,7 +52,6 @@ class Config():
     def to_json(self):
         return {
             "prefix": self.prefix,
-            "threads": self.threads,
             "token": self.token,
             "scrape_delay": self.scrape_delay,
             "default_language": self.default_language,
