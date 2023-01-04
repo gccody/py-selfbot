@@ -1,6 +1,6 @@
 import re
 from lib.bot import Bot
-from discord.ext.commands import Cog
+from discord.ext.commands import Cog, bot_has_permissions
 from discord.ext.commands import command
 from discord.ext.commands.context import Context
 from discord.message import Message
@@ -54,9 +54,8 @@ Nitro: `{user.nitro}`
             await ctx.reply(m)
 
     @command(name='ban', aliases=['b'], description='Ban a user or multiple users')
+    @bot_has_permissions(ban_members=True)
     async def ban(self, ctx: Context, *reason: str):
-        if not bool(ctx.author.guild_permissions.ban_members):
-            return await ctx.send(""">>> \nInvalid Permissions (Ban Members)""")
         reason = re.sub(r'<@\d+>', "", " ".join(reason)).strip()
         m = ">>> Successfully banned users: \n"
         for member in ctx.message.mentions:
@@ -68,9 +67,8 @@ Nitro: `{user.nitro}`
         await ctx.reply(m)
 
     @command(name='hackban')
+    @bot_has_permissions(ban_members=True)
     async def hack_ban(self, ctx: Context, *reason: str):
-        if not bool(ctx.author.guild_permissions.ban_members):
-            return await ctx.send(""">>> \nInvalid Permissions (Ban Members)""")
         ids = re.findall(r'\d{17,19}', " ".join(reason))
         reason = re.sub(r'\d{17,19}', "", " ".join(reason)).strip()
         guild: Guild = ctx.guild
@@ -80,9 +78,8 @@ Nitro: `{user.nitro}`
         await ctx.reply(f'>>> Banned {len(ids)} members')
 
     @command(name='kick', aliases=['k'], description='Kick a user or multiple users')
+    @bot_has_permissions(kick_members=True)
     async def kick(self, ctx: Context, *reason: str):
-        if not bool(ctx.author.guild_permissions.kick_members):
-            return await ctx.send(""">>> \nInvalid Permissions (Kick Members)""")
         reason = re.sub(r'<@\d+>', "", " ".join(reason)).strip()
         m = ">>> Successfully kicked users: \n"
         for member in ctx.message.mentions:
@@ -95,10 +92,8 @@ Nitro: `{user.nitro}`
         await ctx.reply(m)
 
     @command(name='+timeout', description='Timeout a user or multiple users')
+    @bot_has_permissions(mute_members=True)
     async def add_timeout(self, ctx: Context, minutes: int, *reason: str):
-        print('Starting timeout')
-        if not bool(ctx.author.guild_permissions.mute_members):
-            return await ctx.send(""">>> \nInvalid Permissions (Mute Members)""")
         reason = re.sub(r'<@\d+>', "", " ".join(reason)).strip()
         success = []
         failed = []
@@ -114,10 +109,8 @@ Nitro: `{user.nitro}`
         if len(failed) > 0: await ctx.reply(f'Failed to timeout: >>> {new.join(failed)}')
 
     @command(name='-timeout', description='Un-timeout a user or multiple users')
+    @bot_has_permissions(mute_members=True)
     async def remove_timeout(self, ctx: Context, _):
-        perm: Permissions
-        if not bool(ctx.author.guild_permissions.mute_members):
-            return await ctx.send(""">>> \nInvalid Permissions (Mute Members)""")
         success = []
         failed = []
         new = "\n"
@@ -134,9 +127,8 @@ Nitro: `{user.nitro}`
 
     @command(name='add_role', aliases=['+role', 'addrole', '+r'],
              description='Add a role or multiple roles to a user or multiple users')
+    @bot_has_permissions(manage_roles=True)
     async def add_role(self, ctx: Context, _):
-        if not bool(ctx.author.guild_permissions.manage_roles):
-            return await ctx.send(">>> Invalid Permissions (Manage Roles)")
         if len(ctx.message.mentions) == 0:
             return await ctx.send(f">>> Mention users to add the roles to")
         matches = re.finditer(r"<@&(\d+?)>", ctx.message.content, re.MULTILINE)
@@ -172,9 +164,8 @@ Nitro: `{user.nitro}`
 
     @command(name="remove_role", aliases=['-role', '-r', 'removerole'],
              description='Remove a role or multiple roles from a user or multiple users')
+    @bot_has_permissions(manage_roles=True)
     async def remove_role(self, ctx: Context, _):
-        if not bool(ctx.author.guild_permissions.manage_roles):
-            return await ctx.send(">>> Invalid Permissions (Manage Roles)")
         if len(ctx.message.mentions) == 0:
             return await ctx.send(f">>> Mention users to remove the roles from")
         matches = re.findall(r"<@&(\d+?)>", ctx.message.content, re.MULTILINE)

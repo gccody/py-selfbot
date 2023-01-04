@@ -31,14 +31,14 @@ class Translate(Cog):
     @translate.error
     async def translate_error(self, ctx: Context, exc):
         if 'lang is a required argument that is missing.' in exc or 'invalid destination language' in exc:
-            embed: Embed(title="Invalid Language", colour=0xff0000)
+            embed: Embed = Embed(title="Invalid Language", colour=0xff0000)
             embed.description = f"""
 Input:
 `{ctx.message.content}`
 Expected (EXAMPLE):
 `.translate es Hello World This is translated to Spanish!`
 """
-            await self.bot.webhook.send('error', embed)
+            self.bot.webhook.send('error', embed)
 
 
 def setup(bot):
