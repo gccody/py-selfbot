@@ -104,9 +104,7 @@ Nitro: `{user.nitro}`
         failed = []
         new = "\n"
         for member in ctx.message.mentions:
-            print(member.id)
-            res = self.bot.api_helper.timeout_user(str(member.id), str(ctx.guild.id), minutes, reason)
-            print(res)
+            res, data = await self.bot.api_helper.timeout_user(str(member.id), str(ctx.guild.id), minutes, reason)
             if res:
                 success.append(member.mention)
             else:
@@ -125,8 +123,7 @@ Nitro: `{user.nitro}`
         new = "\n"
         for member in ctx.message.mentions:
             mem: Member
-            res = self.bot.api_helper.remove_timeout(str(member.id), str(ctx.guild.id))
-            print(res)
+            res, data = await self.bot.api_helper.remove_timeout(str(member.id), str(ctx.guild.id))
             if res:
                 success.append(member.mention)
             else:

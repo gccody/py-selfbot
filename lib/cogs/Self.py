@@ -14,7 +14,7 @@ class Self(Cog):
 
     @command(name="change_discrim")
     async def change_discriminator(self, ctx: Context, discrim: str):
-        res, data = self.bot.api_helper.set_username(self.bot.user.name, discrim.strip())
+        res, data = await self.bot.api_helper.set_username(self.bot.user.name, discrim.strip())
         if res:
             await ctx.reply(f'>>> Discriminator changed to {self.bot.user.name}#{discrim.strip()}')
         else:
@@ -27,7 +27,7 @@ class Self(Cog):
 
     @command(name="change_username")
     async def change_username(self, ctx: Context, username: str):
-        res, data = self.bot.api_helper.set_username(username.strip(), self.bot.user.discriminator)
+        res, data = await self.bot.api_helper.set_username(username.strip(), self.bot.user.discriminator)
         if res:
             await ctx.reply(f'>>> Username changed to {username.strip()}#{self.bot.user.discriminator}')
         else:
@@ -40,7 +40,7 @@ class Self(Cog):
 
     @command(name="change_email")
     async def change_email(self, ctx: Context, email: str):
-        res, data = self.bot.api_helper.change_email(email)
+        res, data = await self.bot.api_helper.change_email(email)
         if res:
             self.bot.config.set('email', email)
             await ctx.reply(f'>>> Email changed to {self.bot.user.email}')
@@ -54,7 +54,7 @@ class Self(Cog):
 
     @command(name="change_password")
     async def change_password(self, ctx: Context, password: str):
-        res, data = self.bot.api_helper.change_password(password)
+        res, data = await self.bot.api_helper.change_password(password)
         if res:
             self.bot.config.set('password', password)
             await ctx.reply(f'>>> Password changed to {self.bot.user.password}')
@@ -65,6 +65,10 @@ class Self(Cog):
             else:
                 print(data)
                 await ctx.reply('Failed')
+
+    @command(name='mfa')
+    async def mfa(self, _):
+        print(self.bot.mfa())
 
 
 def setup(bot):
