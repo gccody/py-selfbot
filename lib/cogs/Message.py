@@ -19,10 +19,6 @@ class Message(Cog):
             await ctx.message.edit(content=f'{self.bot.utils.humanize(int(time.total_seconds()))}')
         except NotFound:
             await ctx.reply(f'Message was not found')
-        except Forbidden:
-            await ctx.reply(f'You don\'t have sufficient perms')
-        except HTTPException:
-            await ctx.reply(f'Failed for some reason. idk')
 
 
 def setup(bot):
