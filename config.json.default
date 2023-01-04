@@ -1,6 +1,5 @@
 {
   "prefix": ">",
-  "threads": 10,
   "token": "",
   "scrape_delay": 10,
   "default_language": "en",
