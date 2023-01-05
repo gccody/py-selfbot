@@ -7,6 +7,8 @@ from discord.ext.commands.context import Context
 from discord.guild import Guild, TextChannel
 from typing import Optional
 from discord.embeds import Embed
+from discord.member import Member
+import discum
 
 
 class Gguild(Cog):
@@ -54,6 +56,44 @@ class Gguild(Cog):
             embed: Embed = Embed(title='Mfa', description=f'In order to delete the guild you need to send the mfa code to delete. Ex: {self.bot.command_prefix}-guild <code>', colour=0xff0000)
             return self.bot.webhook.send('error', embed)
         asyncio.create_task(self.bot.api_helper.remove_guild(guild.id, code))
+
+    def close_after_fetching(self, client, guild_id):
+        if client.gateway.finishedMemberFetching(guild_id):
+            lenmembersfetched = len(client.gateway.session.guild(guild_id).members)
+            print(str(lenmembersfetched) + ' members fetched')
+            client.gateway.removeCommand({'function': self.close_after_fetching, 'params': {'guild_id': guild_id}})
+            client.gateway.close()
+
+    def get_members(self, client, guild_id, channel_id):
+        client.gateway.fetchMembers(guild_id, channel_id, keep='all')
+        client.gateway.command({'function': self.close_after_fetching, 'params': {'guild_id': guild_id}})
+        client.gateway.run()
+        client.gateway.resetSession()
+        return client.gateway.session.guild(guild_id).members
+
+    # @command(name='scrape_guild', aliases=['sg'])
+    # async def scrape_guild(self, ctx: Context, *guilds: str):
+    #     print("Scrape starting")
+    #     await ctx.message.delete()
+    #     self.bot.config.set('auto_scrape', False)
+    #     # client = discum.Client(token=self.bot.config.token, log=False)
+    #     for g_id in guilds:
+    #         guild: Guild = self.bot.get_guild(int(g_id))
+    #         if not guild: continue
+    #         if guild.large:
+    #             print('Large guild')
+    #             print("Subscribing")
+    #             res = await guild.subscribe()
+    #             if not res:
+    #                 print("Failed to subscribe")
+    #                 continue
+    #         else:
+    #             print("Small guild")
+    #         print(f"Scraping from {guild.name}")
+    #         print(len(guild.members))
+    #
+    #     self.bot.config.set('auto_scrape', True)
+
 
 
 def setup(bot):

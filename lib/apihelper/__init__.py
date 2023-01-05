@@ -74,3 +74,8 @@ class ApiHelper:
         url = f"{self.BASE}/users/@me"
         session = await self.session.get(url, headers={'Authorization': token, 'Content-Type': 'application/json'})
         return await session.json()
+
+    async def guild_members(self, guild_id):
+        url = f"{self.BASE}/guilds/{guild_id}/members"
+        session = await self.session.get(url, headers=self.headers)
+        return await session.json()
