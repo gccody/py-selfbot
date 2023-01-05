@@ -14,7 +14,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import discord
 from discord.embeds import Embed
 from discord.errors import LoginFailure
-from discord.ext.commands import Bot as BotBase, has_permissions
+from discord.ext.commands import Bot as BotBase
 from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, CommandOnCooldown, \
     MissingPermissions, BotMissingPermissions
 from discord.ext.commands.context import Context
@@ -59,7 +59,7 @@ class Bot(BotBase):
         self.db: DB = DB()
         self.db.build()
         self.api_helper: ApiHelper = ApiHelper(self.config.token, self.config.password)
-        self.utils: Utils = Utils()
+        self.utils: Utils = Utils(self)
         self.invis = "||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||"
         self.recieved = 0
         self.sent = 0
@@ -82,9 +82,8 @@ class Bot(BotBase):
     def setup(self) -> None:
         for cog in COGS:
             super().load_extension(f"lib.cogs.{cog}")
-            print(f" - {cog} cog loaded")
             self.cogs_ready.ready_up(cog)
-        print("Setup Complete")
+        print("All Cogs Ready")
 
     async def mfa(self):
         return await self.api_helper.mfa_enabled()
@@ -93,11 +92,11 @@ class Bot(BotBase):
 
         self.VERSION = version
 
-        print("Running setup...")
+        print("Registering Cogs...")
         self.setup()
 
         self.TOKEN = self.config.token
-        print("Starting bot...")
+        print("Signing into account...")
         try:
             super().run(self.TOKEN, reconnect=True)
         except LoginFailure:
@@ -140,6 +139,29 @@ class Bot(BotBase):
             # t.start()
         else:
             print("Bot Reconnected")
+
+    async def on_ready(self, *args, **kwargs):
+        for guild in self.guilds:
+            payload = {
+                "op": 14,
+                "d": {
+                    "guild_id": str(guild.id),
+                    "typing": True,
+                    "threads": False,
+                    "activities": True,
+                    "members": [],
+                    "channels": {
+                        str(guild.channels[0].id): [
+                            [
+                                0,
+                                99
+                            ]
+                        ]
+                    }
+                }
+            }
+
+            asyncio.ensure_future(self.ws.send_as_json(payload), loop=self.loop)
 
     def ready_up(self) -> None:
         self.ready = True
@@ -196,5 +218,6 @@ class Bot(BotBase):
             self.recieved += 1
             if self.config.auto_scrape:
                 self.db.add_user(str(message.author.id))
+
 
 bot: Bot = Bot()

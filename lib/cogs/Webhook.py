@@ -61,12 +61,8 @@ class WebhookCreate(Cog):
         for _ in range(amount):
             try:
                 await wh.send(" ".join(message))
-            except Forbidden:
-                return await ctx.reply('Authorization token incorrect')
             except NotFound:
                 return await ctx.reply('Webhook was not found')
-            except HTTPException:
-                await ctx.reply('Message failed to send')
 
 
 def setup(bot):
